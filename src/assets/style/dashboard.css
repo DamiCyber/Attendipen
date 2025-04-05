@@ -1,0 +1,45 @@
+.counter{
+    padding: 45px !important;
+    margin-top: 25px !important  ;
+    margin-bottom: 30px !important  ;
+    border-radius: 30px;
+}
+.sidebar a{
+    padding: 5px !important;
+    margin-top: 6px !important;
+    margin-bottom: 6px !important;
+    border-radius: 10px !important;
+    color: white !important;  
+}
+.main-content{
+    margin: 20px !important;
+}
+.student-stat{
+    padding:20px !important;
+}
+.control-btn{
+    padding: 15px;
+    border-radius: 50%;
+}
+.sidebar nav{
+    font-size: 12px;
+}
+.rdp-button{
+border: none;
+width: 78px !important;
+height:40px ;
+}
+.searchall{
+    height: 45px;
+}
+.searchall::placeholder{
+    position: relative;
+    left: 13%;
+}
+.rdp-head{
+ position: relative ;
+ left: 28%;
+}
+.school{
+padding: 15px;
+}
