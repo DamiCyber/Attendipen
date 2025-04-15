@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import "../assets/style/dashboard.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +17,7 @@ const Dashboard = () => {
   const [date, setDate] = React.useState(new Date());
   const [user, setUser] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Retrieve the user from localStorage
@@ -56,102 +57,242 @@ const Dashboard = () => {
 
   return (
     <div className="flex h-screen bg-[#F9F9F9]">
+      {/* Mobile Sidebar Toggle Button */}
+      <button
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-[#4D44B5] text-white rounded-md"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          {isSidebarOpen ? (
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          ) : (
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          )}
+        </svg>
+      </button>
+
       {/* Sidebar */}
-      <div className="w-64 bg-[#4D44B5] text-white sidebar">
-        <div className="p-4">
-          <div className="flex flex-col items-center gap-3 mb-8">
-            <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1734938938/amend_lntakp.png" alt="logo" className="w-25 h-25"></img>
-            <h1 className="text-xl font-semibold">Attendipen</h1>
+      <div
+        className={`fixed lg:static w-64 bg-[#4D44B5] text-white sidebar transform transition-transform duration-300 ease-in-out ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        } z-40 h-full`}
+      >
+        <div className="p-6 pb-4">
+          <div className="flex flex-col items-center gap-4 mb-8">
+            <img
+              src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1734938938/amend_lntakp.png"
+              alt="logo"
+              className="w-30 h-30 object-contain"
+            />
+            <h1 className="text-xl font-semibold tracking-tight">Attendipen</h1>
           </div>
-          <div className="border"></div>
-          <nav>
+          <div className="border" />
+
+          <nav className="flex-1">
             <ul className="space-y-4">
+              {/* Dashboard Link */}
               <li>
-                <Link to="/Dashboard" className="flex items-center gap-3 px-4 py-3 bg-white/10 rounded-lg">
-                  <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281723/home-2_wwzqrg.png" alt="dashboard" className="w-5 h-5" />
-                  <span>Dashboard</span>
+                <Link
+                  to="/dashboard"
+                  className="flex items-center gap-3 px-4 py-3 bg-white/10 rounded-lg transition-colors hover:bg-white/15"
+                >
+                  <img
+                    src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281723/home-2_wwzqrg.png"
+                    alt="dashboard"
+                    className="w-5 h-5 flex-shrink-0"
+                  />
+                  <span className="text-sm font-medium">Dashboard</span>
                 </Link>
               </li>
+
+              {/* Teachers Link */}
               <li>
-                <Link to="/Teachers" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg">
-                  <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281723/teacher_mmxcpi.svg" alt="teachers" className="w-5 h-5" />
-                  <span>Teachers</span>
+                <Link
+                  to="/teachers"
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors hover:bg-white/10"
+                >
+                  <img
+                    src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281723/teacher_mmxcpi.svg"
+                    alt="teachers"
+                    className="w-5 h-5 flex-shrink-0"
+                  />
+                  <span className="text-sm font-medium">Teachers</span>
                 </Link>
               </li>
+
+              {/* Students Link */}
               <li>
-                <Link to="/Student" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg">
-                  <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281721/Student_hunumx.svg" alt="students" className="w-5 h-5" />
-                  <span>Students</span>
+                <Link
+                  to="/students"
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors hover:bg-white/10"
+                >
+                  <img
+                    src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281721/Student_hunumx.svg"
+                    alt="students"
+                    className="w-5 h-5 flex-shrink-0"
+                  />
+                  <span className="text-sm font-medium">Students</span>
                 </Link>
               </li>
-              <li>
-                <Link to="/List" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg">
-                  <svg className="w-5 h-5" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M14 nnn33336H2.00004C1.36004 8.33336 0.833374 7.8067 0.833374 7.1667V4.95336C0.833374 4.50002 1.14669 4.04003 1.56669 3.87336L7.56669 1.47338C7.82002 1.37338 8.18006 1.37338 8.43339 1.47338L14.4334 3.87336C14.8534 4.04003 15.1667 4.50669 15.1667 4.95336V7.1667C15.1667 7.8067 14.64 8.33336 14 8.33336ZM8.00004 2.39338C7.97337 2.39338 7.94672 2.39335 7.93339 2.40001L1.94002 4.80004C1.90002 4.82004 1.83337 4.90669 1.83337 4.95336V7.1667C1.83337 7.26003 1.90671 7.33336 2.00004 7.33336H14C14.0934 7.33336 14.1667 7.26003 14.1667 7.1667V4.95336C14.1667 4.90669 14.1067 4.82004 14.0601 4.80004L8.06006 2.40001C8.04673 2.39335 8.02671 2.39338 8.00004 2.39338Z" fill="white" />
-                    <path d="M14.6667 15.6667H1.33337C1.06004 15.6667 0.833374 15.44 0.833374 15.1667V13.1667C0.833374 12.5267 1.36004 12 2.00004 12H14C14.64 12 15.1667 12.5267 15.1667 13.1667V15.1667C15.1667 15.44 14.94 15.6667 14.6667 15.6667ZM1.83337 14.6667H14.1667V13.1667C14.1667 13.0733 14.0934 13 14 13H2.00004C1.90671 13 1.83337 13.0733 1.83337 13.1667V14.6667Z" fill="white" />
-                    <path d="M2.66663 13C2.39329 13 2.16663 12.7733 2.16663 12.5V7.83331C2.16663 7.55998 2.39329 7.33331 2.66663 7.33331C2.93996 7.33331 3.16663 7.55998 3.16663 7.83331V12.5C3.16663 12.7733 2.93996 13 2.66663 13Z" fill="white" />
-                    <path d="M5.33337 13C5.06004 13 4.83337 12.7733 4.83337 12.5V7.83331C4.83337 7.55998 5.06004 7.33331 5.33337 7.33331C5.60671 7.33331 5.83337 7.55998 5.83337 7.83331V12.5C5.83337 12.7733 5.60671 13 5.33337 13Z" fill="white" />
-                    <path d="M8 13C7.72667 13 7.5 12.7733 7.5 12.5V7.83331C7.5 7.55998 7.72667 7.33331 8 7.33331C8.27333 7.33331 8.5 7.55998 8.5 7.83331V12.5C8.5 12.7733 8.27333 13 8 13Z" fill="white" />
-                    <path d="M10.6666 13C10.3933 13 10.1666 12.7733 10.1666 12.5V7.83331C10.1666 7.55998 10.3933 7.33331 10.6666 7.33331C10.94 7.33331 11.1666 7.55998 11.1666 7.83331V12.5C11.1666 12.7733 10.94 13 10.6666 13Z" fill="white" />
-                    <path d="M13.3334 13C13.06 13 12.8334 12.7733 12.8334 12.5V7.83331C12.8334 7.55998 13.06 7.33331 13.3334 7.33331C13.6067 7.33331 13.8334 7.55998 13.8334 7.83331V12.5C13.8334 12.7733 13.6067 13 13.3334 13Z" fill="white" />
-                    <path d="M15.3333 15.6667H0.666626C0.393293 15.6667 0.166626 15.44 0.166626 15.1667C0.166626 14.8934 0.393293 14.6667 0.666626 14.6667H15.3333C15.6066 14.6667 15.8333 14.8934 15.8333 15.1667C15.8333 15.44 15.6066 15.6667 15.3333 15.6667Z" fill="white" />
-                    <path d="M8 6.66669C7.17333 6.66669 6.5 5.99335 6.5 5.16669C6.5 4.34002 7.17333 3.66669 8 3.66669C8.82667 3.66669 9.5 4.34002 9.5 5.16669C9.5 5.99335 8.82667 6.66669 8 6.66669ZM8 4.66669C7.72667 4.66669 7.5 4.89335 7.5 5.16669C7.5 5.44002 7.72667 5.66669 8 5.66669C8.27333 5.66669 8.5 5.44002 8.5 5.16669C8.5 4.89335 8.27333 4.66669 8 4.66669Z" fill="white" />
-                  </svg>
-                  <span>Class List</span>
-                </Link>
+
+              {/* Class Details Dropdown */}
+              <li className="drop">
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors hover:bg-white/10">
+                    <svg className="w-5 h-5" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M14 nnn33336H2.00004C1.36004 8.33336 0.833374 7.8067 0.833374 7.1667V4.95336C0.833374 4.50002 1.14669 4.04003 1.56669 3.87336L7.56669 1.47338C7.82002 1.37338 8.18006 1.37338 8.43339 1.47338L14.4334 3.87336C14.8534 4.04003 15.1667 4.50669 15.1667 4.95336V7.1667C15.1667 7.8067 14.64 8.33336 14 8.33336ZM8.00004 2.39338C7.97337 2.39338 7.94672 2.39335 7.93339 2.40001L1.94002 4.80004C1.90002 4.82004 1.83337 4.90669 1.83337 4.95336V7.1667C1.83337 7.26003 1.90671 7.33336 2.00004 7.33336H14C14.0934 7.33336 14.1667 7.26003 14.1667 7.1667V4.95336C14.1667 4.90669 14.1067 4.82004 14.0601 4.80004L8.06006 2.40001C8.04673 2.39335 8.02671 2.39338 8.00004 2.39338Z" fill="white" />
+                      <path d="M14.6667 15.6667H1.33337C1.06004 15.6667 0.833374 15.44 0.833374 15.1667V13.1667C0.833374 12.5267 1.36004 12 2.00004 12H14C14.64 12 15.1667 12.5267 15.1667 13.1667V15.1667C15.1667 15.44 14.94 15.6667 14.6667 15.6667ZM1.83337 14.6667H14.1667V13.1667C14.1667 13.0733 14.0934 13 14 13H2.00004C1.90671 13 1.83337 13.0733 1.83337 13.1667V14.6667Z" fill="white" />
+                      <path d="M2.66663 13C2.39329 13 2.16663 12.7733 2.16663 12.5V7.83331C2.16663 7.55998 2.39329 7.33331 2.66663 7.33331C2.93996 7.33331 3.16663 7.55998 3.16663 7.83331V12.5C3.16663 12.7733 2.93996 13 2.66663 13Z" fill="white" />
+                      <path d="M5.33337 13C5.06004 13 4.83337 12.7733 4.83337 12.5V7.83331C4.83337 7.55998 5.06004 7.33331 5.33337 7.33331C5.60671 7.33331 5.83337 7.55998 5.83337 7.83331V12.5C5.83337 12.7733 5.60671 13 5.33337 13Z" fill="white" />
+                      <path d="M8 13C7.72667 13 7.5 12.7733 7.5 12.5V7.83331C7.5 7.55998 7.72667 7.33331 8 7.33331C8.27333 7.33331 8.5 7.55998 8.5 7.83331V12.5C8.5 12.7733 8.27333 13 8 13Z" fill="white" />
+                      <path d="M10.6666 13C10.3933 13 10.1666 12.7733 10.1666 12.5V7.83331C10.1666 7.55998 10.3933 7.33331 10.6666 7.33331C10.94 7.33331 11.1666 7.55998 11.1666 7.83331V12.5C11.1666 12.7733 10.94 13 10.6666 13Z" fill="white" />
+                      <path d="M13.3334 13C13.06 13 12.8334 12.7733 12.8334 12.5V7.83331C12.8334 7.55998 13.06 7.33331 13.3334 7.33331C13.6067 7.33331 13.8334 7.55998 13.8334 7.83331V12.5C13.8334 12.7733 13.6067 13 13.3334 13Z" fill="white" />
+                      <path d="M15.3333 15.6667H0.666626C0.393293 15.6667 0.166626 15.44 0.166626 15.1667C0.166626 14.8934 0.393293 14.6667 0.666626 14.6667H15.3333C15.6066 14.6667 15.8333 14.8934 15.8333 15.1667C15.8333 15.44 15.6066 15.6667 15.3333 15.6667Z" fill="white" />
+                      <path d="M8 6.66669C7.17333 6.66669 6.5 5.99335 6.5 5.16669C6.5 4.34002 7.17333 3.66669 8 3.66669C8.82667 3.66669 9.5 4.34002 9.5 5.16669C9.5 5.99335 8.82667 6.66669 8 6.66669ZM8 4.66669C7.72667 4.66669 7.5 4.89335 7.5 5.16669C7.5 5.44002 7.72667 5.66669 8 5.66669C8.27333 5.66669 8.5 5.44002 8.5 5.16669C8.5 4.89335 8.27333 4.66669 8 4.66669Z" fill="white" />
+                    </svg>
+                    <span className="text-sm font-medium">Class Details</span>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    side="right"
+                    align="start"
+                    className="w-56 h-15 px-4 bg-[#152259] text-white contentdrop"
+                  >
+                    <Link to="/classes/create" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg">
+                      <svg className="w-5 h-5" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1.33337 9.05332V10.5C1.33337 13.8333 2.66671 15.1666 6.00004 15.1666H10C13.3334 15.1666 14.6667 13.8333 14.6667 10.5V6.49998C14.6667 3.16665 13.3334 1.83331 10 1.83331H6.00004C2.66671 1.83331 1.33337 3.16665 1.33337 6.49998" stroke="white" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M6.74003 7.93335H4.97337C4.55337 7.93335 4.21338 8.27332 4.21338 8.69332V12.1066H6.74003V7.93335V7.93335Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M8.50673 4.89996H7.49339C7.07339 4.89996 6.7334 5.23997 6.7334 5.65997V12.1H9.26007V5.65997C9.26007 5.23997 8.92673 4.89996 8.50673 4.89996Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M11.0334 9.06665H9.26672V12.1H11.7934V9.82666C11.7867 9.40666 11.4467 9.06665 11.0334 9.06665Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                      <span>Create Class</span>
+                    </Link>
+
+                    <Link to="/classes" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg">
+                      <svg className="w-5 h-5" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 nnn33336H2.00004C1.36004 8.33336 0.833374 7.8067 0.833374 7.1667V4.95336C0.833374 4.50002 1.14669 4.04003 1.56669 3.87336L7.56669 1.47338C7.82002 1.37338 8.18006 1.37338 8.43339 1.47338L14.4334 3.87336C14.8534 4.04003 15.1667 4.50669 15.1667 4.95336V7.1667C15.1667 7.8067 14.64 8.33336 14 8.33336ZM8.00004 2.39338C7.97337 2.39338 7.94672 2.39335 7.93339 2.40001L1.94002 4.80004C1.90002 4.82004 1.83337 4.90669 1.83337 4.95336V7.1667C1.83337 7.26003 1.90671 7.33336 2.00004 7.33336H14C14.0934 7.33336 14.1667 7.26003 14.1667 7.1667V4.95336C14.1667 4.90669 14.1067 4.82004 14.0601 4.80004L8.06006 2.40001C8.04673 2.39335 8.02671 2.39338 8.00004 2.39338Z" fill="white" />
+                        <path d="M14.6667 15.6667H1.33337C1.06004 15.6667 0.833374 15.44 0.833374 15.1667V13.1667C0.833374 12.5267 1.36004 12 2.00004 12H14C14.64 12 15.1667 12.5267 15.1667 13.1667V15.1667C15.1667 15.44 14.94 15.6667 14.6667 15.6667ZM1.83337 14.6667H14.1667V13.1667C14.1667 13.0733 14.0934 13 14 13H2.00004C1.90671 13 1.83337 13.0733 1.83337 13.1667V14.6667Z" fill="white" />
+                        <path d="M2.66663 13C2.39329 13 2.16663 12.7733 2.16663 12.5V7.83331C2.16663 7.55998 2.39329 7.33331 2.66663 7.33331C2.93996 7.33331 3.16663 7.55998 3.16663 7.83331V12.5C3.16663 12.7733 2.93996 13 2.66663 13Z" fill="white" />
+                        <path d="M5.33337 13C5.06004 13 4.83337 12.7733 4.83337 12.5V7.83331C4.83337 7.55998 5.06004 7.33331 5.33337 7.33331C5.60671 7.33331 5.83337 7.55998 5.83337 7.83331V12.5C5.83337 12.7733 5.60671 13 5.33337 13Z" fill="white" />
+                        <path d="M8 13C7.72667 13 7.5 12.7733 7.5 12.5V7.83331C7.5 7.55998 7.72667 7.33331 8 7.33331C8.27333 7.33331 8.5 7.55998 8.5 7.83331V12.5C8.5 12.7733 8.27333 13 8 13Z" fill="white" />
+                        <path d="M10.6666 13C10.3933 13 10.1666 12.7733 10.1666 12.5V7.83331C10.1666 7.55998 10.3933 7.33331 10.6666 7.33331C10.94 7.33331 11.1666 7.55998 11.1666 7.83331V12.5C11.1666 12.7733 10.94 13 10.6666 13Z" fill="white" />
+                        <path d="M13.3334 13C13.06 13 12.8334 12.7733 12.8334 12.5V7.83331C12.8334 7.55998 13.06 7.33331 13.3334 7.33331C13.6067 7.33331 13.8334 7.55998 13.8334 7.83331V12.5C13.8334 12.7733 13.6067 13 13.3334 13Z" fill="white" />
+                        <path d="M15.3333 15.6667H0.666626C0.393293 15.6667 0.166626 15.44 0.166626 15.1667C0.166626 14.8934 0.393293 14.6667 0.666626 14.6667H15.3333C15.6066 14.6667 15.8333 14.8934 15.8333 15.1667C15.8333 15.44 15.6066 15.6667 15.3333 15.6667Z" fill="white" />
+                        <path d="M8 6.66669C7.17333 6.66669 6.5 5.99335 6.5 5.16669C6.5 4.34002 7.17333 3.66669 8 3.66669C8.82667 3.66669 9.5 4.34002 9.5 5.16669C9.5 5.99335 8.82667 6.66669 8 6.66669ZM8 4.66669C7.72667 4.66669 7.5 4.89335 7.5 5.16669C7.5 5.44002 7.72667 5.66669 8 5.66669C8.27333 5.66669 8.5 5.44002 8.5 5.16669C8.5 4.89335 8.27333 4.66669 8 4.66669Z" fill="white" />
+                      </svg>
+                      <span>Class List</span>
+                    </Link>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </li>
-              <li>
-                <Link to="/Setting" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg">
-                  <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281722/setting-2_nxazfr.svg" alt="settings" className="w-5 h-5" />
-                  <span>Attendance Setting</span>
-                </Link>
+
+              {/* Attendance Dropdown */}
+              <li className="mt-4 drop">
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors hover:bg-white/10">
+                    <svg className="w-5 h-5" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1.33337 9.05332V10.5C1.33337 13.8333 2.66671 15.1666 6.00004 15.1666H10C13.3334 15.1666 14.6667 13.8333 14.6667 10.5V6.49998C14.6667 3.16665 13.3334 1.83331 10 1.83331H6.00004C2.66671 1.83331 1.33337 3.16665 1.33337 6.49998" stroke="white" stroke-linecap="round" stroke-linejoin="round" />
+                      <path d="M6.74003 7.93335H4.97337C4.55337 7.93335 4.21338 8.27332 4.21338 8.69332V12.1066H6.74003V7.93335V7.93335Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                      <path d="M8.50673 4.89996H7.49339C7.07339 4.89996 6.7334 5.23997 6.7334 5.65997V12.1H9.26007V5.65997C9.26007 5.23997 8.92673 4.89996 8.50673 4.89996Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                      <path d="M11.0334 9.06665H9.26672V12.1H11.7934V9.82666C11.7867 9.40666 11.4467 9.06665 11.0334 9.06665Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span className="text-sm font-medium">Attendance</span>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    side="right"
+                    align="start"
+                    className="w-56 bg-[#152259] text-white contentdrop2"
+                  >
+                    <Link to="/settings" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg">
+                      <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281722/setting-2_nxazfr.svg" alt="settings" className="w-5 h-5" />
+                      <span>Attendance Setting</span>
+                    </Link>
+
+                    <Link to="/attendance" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg">
+                      <svg className="w-5 h-5" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1.33337 9.05332V10.5C1.33337 13.8333 2.66671 15.1666 6.00004 15.1666H10C13.3334 15.1666 14.6667 13.8333 14.6667 10.5V6.49998C14.6667 3.16665 13.3334 1.83331 10 1.83331H6.00004C2.66671 1.83331 1.33337 3.16665 1.33337 6.49998" stroke="white" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M6.74003 7.93335H4.97337C4.55337 7.93335 4.21338 8.27332 4.21338 8.69332V12.1066H6.74003V7.93335V7.93335Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M8.50673 4.89996H7.49339C7.07339 4.89996 6.7334 5.23997 6.7334 5.65997V12.1H9.26007V5.65997C9.26007 5.23997 8.92673 4.89996 8.50673 4.89996Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M11.0334 9.06665H9.26672V12.1H11.7934V9.82666C11.7867 9.40666 11.4467 9.06665 11.0334 9.06665Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                      <span>View Attendance</span>
+                    </Link>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </li>
-              <li>
-                <Link to="/CreateClass" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg">
-                  <svg className="w-5 h-5" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M1.33337 9.05332V10.5C1.33337 13.8333 2.66671 15.1666 6.00004 15.1666H10C13.3334 15.1666 14.6667 13.8333 14.6667 10.5V6.49998C14.6667 3.16665 13.3334 1.83331 10 1.83331H6.00004C2.66671 1.83331 1.33337 3.16665 1.33337 6.49998" stroke="white" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M6.74003 7.93335H4.97337C4.55337 7.93335 4.21338 8.27332 4.21338 8.69332V12.1066H6.74003V7.93335V7.93335Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M8.50673 4.89996H7.49339C7.07339 4.89996 6.7334 5.23997 6.7334 5.65997V12.1H9.26007V5.65997C9.26007 5.23997 8.92673 4.89996 8.50673 4.89996Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M11.0334 9.06665H9.26672V12.1H11.7934V9.82666C11.7867 9.40666 11.4467 9.06665 11.0334 9.06665Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                  <span>Create Class</span>
-                </Link>
+
+              {/* Assign Dropdown */}
+              <li className="mt-4 drop">
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors hover:bg-white/10">
+                    <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281723/teacher_mmxcpi.svg" alt="teachers" className="w-5 h-5" />
+                    <span className="text-sm font-medium">Assign</span>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    side="right"
+                    align="start"
+                    className="w-56 bg-[#152259] text-white contentdrop3"
+                  >
+                    <Link to="/teachers/assign" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg">
+                      <svg className="w-5 h-5" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1.33337 9.05332V10.5C1.33337 13.8333 2.66671 15.1666 6.00004 15.1666H10C13.3334 15.1666 14.6667 13.8333 14.6667 10.5V6.49998C14.6667 3.16665 13.3334 1.83331 10 1.83331H6.00004C2.66671 1.83331 1.33337 3.16665 1.33337 6.49998" stroke="white" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M6.74003 7.93335H4.97337C4.55337 7.93335 4.21338 8.27332 4.21338 8.69332V12.1066H6.74003V7.93335V7.93335Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M8.50673 4.89996H7.49339C7.07339 4.89996 6.7334 5.23997 6.7334 5.65997V12.1H9.26007V5.65997C9.26007 5.23997 8.92673 4.89996 8.50673 4.89996Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M11.0334 9.06665H9.26672V12.1H11.7934V9.82666C11.7867 9.40666 11.4467 9.06665 11.0334 9.06665Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                      <span>Assign Teacher</span>
+                    </Link>
+                    <Link to="/students/assign" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg">
+                      <svg className="w-5 h-5" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1.33337 9.05332V10.5C1.33337 13.8333 2.66671 15.1666 6.00004 15.1666H10C13.3334 15.1666 14.6667 13.8333 14.6667 10.5V6.49998C14.6667 3.16665 13.3334 1.83331 10 1.83331H6.00004C2.66671 1.83331 1.33337 3.16665 1.33337 6.49998" stroke="white" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M6.74003 7.93335H4.97337C4.55337 7.93335 4.21338 8.27332 4.21338 8.69332V12.1066H6.74003V7.93335V7.93335Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M8.50673 4.89996H7.49339C7.07339 4.89996 6.7334 5.23997 6.7334 5.65997V12.1H9.26007V5.65997C9.26007 5.23997 8.92673 4.89996 8.50673 4.89996Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M11.0334 9.06665H9.26672V12.1H11.7934V9.82666C11.7867 9.40666 11.4467 9.06665 11.0334 9.06665Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                      <span>Assign Student</span>
+                    </Link>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </li>
-              <li>
-                <Link to="/AssignStudents" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg">
-                  <svg className="w-5 h-5" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M1.33337 9.05332V10.5C1.33337 13.8333 2.66671 15.1666 6.00004 15.1666H10C13.3334 15.1666 14.6667 13.8333 14.6667 10.5V6.49998C14.6667 3.16665 13.3334 1.83331 10 1.83331H6.00004C2.66671 1.83331 1.33337 3.16665 1.33337 6.49998" stroke="white" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M6.74003 7.93335H4.97337C4.55337 7.93335 4.21338 8.27332 4.21338 8.69332V12.1066H6.74003V7.93335V7.93335Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M8.50673 4.89996H7.49339C7.07339 4.89996 6.7334 5.23997 6.7334 5.65997V12.1H9.26007V5.65997C9.26007 5.23997 8.92673 4.89996 8.50673 4.89996Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M11.0334 9.06665H9.26672V12.1H11.7934V9.82666C11.7867 9.40666 11.4467 9.06665 11.0334 9.06665Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                  <span>Assign Teacher</span>
-                </Link>
-              </li>
-              <li>
-                <Link to="/view" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg">
-                  <svg className="w-5 h-5" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M1.33337 9.05332V10.5C1.33337 13.8333 2.66671 15.1666 6.00004 15.1666H10C13.3334 15.1666 14.6667 13.8333 14.6667 10.5V6.49998C14.6667 3.16665 13.3334 1.83331 10 1.83331H6.00004C2.66671 1.83331 1.33337 3.16665 1.33337 6.49998" stroke="white" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M6.74003 7.93335H4.97337C4.55337 7.93335 4.21338 8.27332 4.21338 8.69332V12.1066H6.74003V7.93335V7.93335Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M8.50673 4.89996H7.49339C7.07339 4.89996 6.7334 5.23997 6.7334 5.65997V12.1H9.26007V5.65997C9.26007 5.23997 8.92673 4.89996 8.50673 4.89996Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M11.0334 9.06665H9.26672V12.1H11.7934V9.82666C11.7867 9.40666 11.4467 9.06665 11.0334 9.06665Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                  <span>View Attendance</span>
-                </Link>
-              </li>
+
+              {/* Other Navigation Links */}
+              <Link to="/parents" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg">
+                <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281721/food_cp4exu.svg" alt="settings" className="w-5 h-5" />
+                <span>Parent List</span>
+              </Link>
+              <Link to="/profile" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg">
+                <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281722/setting-2_nxazfr.svg" alt="settings" className="w-5 h-5" />
+                <span>Settings and Profile</span>
+              </Link>
             </ul>
           </nav>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-8 mt-7 main-content">
+      <div className="flex-1 p-4 lg:p-8 mt-7 main-content overflow-x-hidden">
         {/* Header */}
-        <header className="flex items-center justify-between mb-8 ">
+        <header className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-8 gap-4">
           <div className="description">
             <h1 className="text-2xl font-semibold text-[#4D44B5]">Dashboard</h1>
           </div>
-          <div className="relative form">
+          <div className="w-full lg:w-auto">
+            <div className="relative form">
               <button className="absolute left-4 -translate-y-1/2 top-1/2 p-1">
                 <svg
                   width="20"
@@ -172,32 +313,31 @@ const Dashboard = () => {
                 </svg>
               </button>
               <input
-                className="input rounded-full px-12 py-4 border-2 border-transparent focus:outline-none focus:border-blue-500 placeholder-gray-400 transition-all duration-300 shadow-md w-[300px] searchall"
+                className="input rounded-full px-12 py-4 border-2 border-transparent focus:outline-none focus:border-blue-500 placeholder-gray-400 transition-all duration-300 shadow-md w-full lg:w-[300px] searchall"
                 placeholder="Search..."
                 required=""
                 type="text"
               />
-              <button type="reset" class="absolute right-3 -translate-y-1/2 top-1/2 p-1">
+              <button type="reset" className="absolute right-3 -translate-y-1/2 top-1/2 p-1">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  class="w-5 h-5 text-gray-700"
+                  className="w-5 h-5 text-gray-700"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
                   <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                     d="M6 18L18 6M6 6l12 12"
                   ></path>
                 </svg>
               </button>
-
-
+            </div>
           </div>
 
-          <div className="flex items-center gap-9 control ">
-            <button className="p-2 hover:bg-gray-100 rounded-lg bg-white control-btn" width="38" height="38">
+          <div className="flex items-center gap-4 control">
+            <button className="p-2 hover:bg-gray-100 rounded-lg bg-white control-btn">
               <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281722/bell_muudfk.svg" alt="notifications" className="w-6 h-6" />
             </button>
             <button className="p-2 hover:bg-gray-100 rounded-lg bg-white control-btn">
@@ -213,12 +353,12 @@ const Dashboard = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger>
                   <img
-                    src={user?.profile_picture || "https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281722/bell_muudfk.svg"}
+                    src={user?.profile_picture || "https://res.cloudinary.com/dgxvuw8wd/image/upload/v1744385939/download_czu4ox.png"}
                     alt="profile"
                     className="w-10 h-10 rounded-full"
                   />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent>
+                <DropdownMenuContent className="allProfile">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
@@ -239,14 +379,14 @@ const Dashboard = () => {
         </header>
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-40 mb-8 bg-white p-4 my-4 counter rounded-md">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 bg-white p-4 my-4 counter rounded-md">
           <div className="flex items-center gap-4 p-[30px] bg-white rounded-2xl">
             <div className="w-12 h-12 flex items-center justify-center bg-[#4D44B5] bg-opacity-10 rounded-full">
               <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281721/Student_hunumx.svg" alt="students" className="w-6 h-6" />
             </div>
             <div>
               <p className="text-gray-500">Students</p>
-              <p className="text-3xl font-semibold">932k</p>
+              <p className="text-3xl font-semibold">704</p>
             </div>
           </div>
           <div className="flex items-center gap-4 p-[30px] bg-white rounded-2xl">
@@ -255,7 +395,7 @@ const Dashboard = () => {
             </div>
             <div>
               <p className="text-gray-500">Teachers</p>
-              <p className="text-3xl font-semibold">754k</p>
+              <p className="text-3xl font-semibold">754</p>
             </div>
           </div>
           <div className="flex items-center gap-4 p-[30px] bg-white rounded-2xl">
@@ -264,7 +404,7 @@ const Dashboard = () => {
             </div>
             <div>
               <p className="text-gray-500">Events</p>
-              <p className="text-3xl font-semibold">40k</p>
+              <p className="text-3xl font-semibold">40</p>
             </div>
           </div>
           <div className="flex items-center gap-4 p-[30px] bg-white rounded-2xl">
@@ -272,15 +412,15 @@ const Dashboard = () => {
               <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281721/food_cp4exu.svg" alt="foods" className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-gray-500">Foods</p>
-              <p className="text-3xl font-semibold">32k</p>
+              <p className="text-gray-500">Records</p>
+              <p className="text-3xl font-semibold">009</p>
             </div>
           </div>
         </div>
 
         {/* Calendar and Chart */}
-        <div className="grid grid-cols-2 gap-6">
-          <div className="bg-white p-15 rounded-2xl">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white p-4 lg:p-15 rounded-2xl">
             <h2 className="text-lg font-semibold mb-4 school">School Calendar</h2>
             <div className="p-4">
               <Calendar
@@ -292,9 +432,9 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="bg-white p-4 rounded-2xl">
-            <div className="flex items-center justify-between mb-2 student-stat">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-2 student-stat">
               <h2 className="text-lg font-semibold">Student Performance</h2>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 mt-2 lg:mt-0">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full border-2 border-[#FCC43E]"></div>
                   <span className="text-sm text-gray-500">This Week</span>
@@ -305,21 +445,23 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
-            <BarChart
-              width={460}
-              height={260}
-              data={chartData}
-              margin={{ top: 20, right: 10, left: 10, bottom: 5 }}
-              barCategoryGap="20%"
-              barGap={7}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="day" />
-              <YAxis />
-              <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="red" fill="#FB7D5B" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="yellow" fill="#FCC43E" radius={[4, 4, 0, 0]} />
-            </BarChart>
+            <div className="overflow-x-auto">
+              <BarChart
+                width={Math.min(window.innerWidth - 40, 460)}
+                height={260}
+                data={chartData}
+                margin={{ top: 20, right: 10, left: 10, bottom: 5 }}
+                barCategoryGap="20%"
+                barGap={7}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="day" />
+                <YAxis />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey="red" fill="#FB7D5B" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="yellow" fill="#FCC43E" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </div>
           </div>
         </div>
       </div>

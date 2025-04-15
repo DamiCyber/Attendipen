@@ -1,124 +1,105 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
-}
-.content {
-  color: #152259;
-  margin-top: 60px;
-}
-.content h2 {
-  z-index: 11111;
-  color: #152259;
-}
-.content input {
-  display: flex;
-  flex-direction: column;
+.cove{
   margin-top: 20px;
-}
-.dashboard {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #f5f5f5;
-  height: 100vh;
-}
-.sidebar {
-  background-color: #152259;
-  width: 17%;
-  height: 100vh;
-}
-.sidebar2 {
-  height: 100vh;
-  width: 100%;
-}
-
-.dashside {
-  color: var(--Color-Text, #303972);
-  font-family: Poppins;
-  font-size: 20px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-}
-
-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 13px;
-  padding-left: 40px;
-  padding-right: 40px;
 }
 .cover-info {
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  top: 3%;
-  width: 100%;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 800px;
+  height: 520px;
+  
+  margin: 0 auto;
 }
 .form-container {
-  position: relative;
-  top: 15%;
-  background-color: white;
-  width: 800px;
-  height: 500px;
-  flex-shrink: 0;
-  left: 30%;
-}
+  padding: 30px;
 
+
+}
+.rbtn{
+  width: 300px;
+}
 .form-container form {
-  position: absolute;
-  top: 5%;
-
-}
-select{
-width: 500px;
-margin-left: -8px;
-border: 1px solid #152259;
-border-radius: 3px;
-
-}
-.wrap{
+  padding-top: 20px;
   display: flex;
-  padding: 10px;
   flex-direction: column;
+  gap: 14px;
 }
-.form-container button{
-  padding: 10px;
-  width: 500px;
-  margin-left: -8px;
+.form-container input,
+.form-container select {
+  width: 100%;
+  padding: 10px 15px;
+  border: 1px solid #E0E0E0;
   border-radius: 8px;
-  margin-top: 20px;
-  background-color: #152259;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+.form-container input:focus,
+.form-container select:focus {
+  outline: none;
+  border-color: #4D44B5;
+  box-shadow: 0 0 0 2px rgba(77, 68, 181, 0.1);
+}
+.wrap {
+  display: flex;
+  /* flex-direction: column; */
+  gap: 20px;
+  align-items: center;
+}
+.wrap select {
+  flex: 1;
+}
+.sel{
+  width: 900px;
+}
+.sel button {
+  width: 100% !important;
+ 
+}
+.wrap button {
+  background: #152259;
   color: white;
+  border: none;
+  font-size: 12px;
+
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.wrap button:hover {
+  background: #152259;
+
 }
 .student-details {
-  color: var(--Color-White, #fff);
-  border-radius: 20px 20px 0px 0px;
-  background: #152259;
-  display: flex;
-  width: 800px;
-  height: 47px;
-  position: relative;
-  left: 30%;
-  /* padding: 11px 39px; */
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-  font-family: Poppins;
-  font-size: 22px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
+  background:  #152259;
+  color: white;
+  border-radius: 20px 20px 0 0;
+  padding: 15px 30px;
+  font-size: 20px;
+  font-weight: 600;
 }
 .student-details h1{
   font-size: 20px;
   padding: 10px;
 }
 .error {
-  height: 20px;
-  color: red;
+  color: #FF4D4D;
+  font-size: 13px;
+  height: 3px !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .cover-info {
+    width: 95%;
+  }
+  
+  .wrap {
+    flex-direction: column;
+  }
+  
+  .wrap button {
+    width: 100%;
+  }
 }

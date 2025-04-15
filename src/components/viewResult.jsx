@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { useParams } from 'react-router-dom';
 
-const SchoolViewAllAttendance = () => {
-  const [attendance, setAttendance] = useState([]);
+const ViewResult = () => {
+  const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { schoolId } = useParams();
+  const [studentId, setStudentId] = useState('');
 
   useEffect(() => {
-    if (schoolId) {
-      fetchAttendance();
+    if (studentId) {
+      fetchResults();
     }
-  }, [schoolId]);
+  }, [studentId]);
 
-  const fetchAttendance = async () => {
+  const fetchResults = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
       Swal.fire('Error', 'Please login to continue', 'error');
@@ -23,7 +22,7 @@ const SchoolViewAllAttendance = () => {
 
     try {
       const response = await axios.get(
-        `https://attendipen-d65abecaffe3.herokuapp.com/attendance/view/${schoolId}`,
+        `https://attendipen-d65abecaffe3.herokuapp.com/subjects/${studentId}/results`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -33,17 +32,29 @@ const SchoolViewAllAttendance = () => {
       );
 
       if (response.data.success) {
-        setAttendance(response.data.attendance || []);
+        setResults(response.data.results || []);
       }
     } catch (error) {
-      console.error('Error fetching attendance:', error);
-      Swal.fire('Error', 'Failed to fetch attendance records', 'error');
+      console.error('Error fetching results:', error);
+      Swal.fire('Error', 'Failed to fetch student results', 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) {
+  const handleStudentIdChange = (e) => {
+    setStudentId(e.target.value);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (studentId) {
+      setLoading(true);
+      fetchResults();
+    }
+  };
+
+  if (loading && results.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
@@ -53,12 +64,36 @@ const SchoolViewAllAttendance = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-2xl font-bold mb-6 text-center">School Attendance Records</h2>
+      <div className="max-w-4xl mx-auto">
+        <h2 className="text-2xl font-bold mb-6 text-center">View Student Results</h2>
+        
+        <form onSubmit={handleSubmit} className="mb-8">
+          <div className="flex gap-4 justify-center">
+            <input
+              type="number"
+              value={studentId}
+              onChange={handleStudentIdChange}
+              placeholder="Enter Student ID"
+              required
+              className="px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className={`px-4 py-2 rounded-md text-white font-semibold ${
+                loading
+                  ? 'bg-blue-400 cursor-not-allowed'
+                  : 'bg-blue-600 hover:bg-blue-700'
+              } transition-colors duration-200`}
+            >
+              {loading ? 'Loading...' : 'View Results'}
+            </button>
+          </div>
+        </form>
 
-        {attendance.length === 0 ? (
+        {results.length === 0 ? (
           <div className="text-center text-gray-500">
-            No attendance records found
+            No results found for this student
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -66,45 +101,33 @@ const SchoolViewAllAttendance = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
+                    Subject
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Student Name
+                    Score
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Class
+                    Grade
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Time
+                    Term
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {attendance.map((record, index) => (
+                {results.map((result, index) => (
                   <tr key={index}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {new Date(record.date).toLocaleDateString()}
+                      {result.subject_name}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {record.student_name}
+                      {result.score}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {record.class_name}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        record.status === 'present' 
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {record.status}
-                      </span>
+                      {result.grade}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {new Date(record.date).toLocaleTimeString()}
+                      {result.term}
                     </td>
                   </tr>
                 ))}
@@ -117,4 +140,4 @@ const SchoolViewAllAttendance = () => {
   );
 };
 
-export default SchoolViewAllAttendance;
+export default ViewResult;

@@ -212,6 +212,21 @@ input:not(:placeholder-shown) ~ .reset {
   font-weight: 400;
   line-height: normal;
 }
-
+.newest-button{
+color: white ;
+}
+.studeo{
+  margin-left: 20px !important;
+}
+  .wider{
+  
+    width:100%;
+    height: 440px;
+    overflow-y: scroll;
+  }
+  .wides{
+  width: 800px;
+  }
+  
   /* overflow-x: hidden; */
   /* height: 494px; */

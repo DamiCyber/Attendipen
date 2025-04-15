@@ -39,7 +39,7 @@ const AssignTeacherToClass = () => {
   const fetchTeachers = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('https://attendipen-d65abecaffe3.herokuapp.com/teachers/all', {
+      const response = await axios.get('https://attendipen-d65abecaffe3.herokuapp.com/teachers', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -174,4 +174,4 @@ const AssignTeacherToClass = () => {
   );
 };
 
-export default AssignTeacherToClass;
+export default AssignTeacherToClass; 

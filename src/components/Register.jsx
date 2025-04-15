@@ -26,6 +26,18 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Add password validation regex from Login component
+    const passwordRegex = /^[a-zA-Z0-9]+$/;
+    if (!passwordRegex.test(formData.password)) {
+      setMessage("Password must contain only letters and numbers");
+      return;
+    }
+
+    if (formData.password.length < 8 || formData.password.length > 20) {
+      setMessage("Password must be between 8 and 20 characters");
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setMessage("Passwords do not match!");
       return;

@@ -3,16 +3,17 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import { useParams } from 'react-router-dom';
 
-const SchoolViewAllAttendance = () => {
+const ParentView = () => {
   const [attendance, setAttendance] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { schoolId } = useParams();
+  const [studentName, setStudentName] = useState('');
+  const { studentId } = useParams();
 
   useEffect(() => {
-    if (schoolId) {
+    if (studentId) {
       fetchAttendance();
     }
-  }, [schoolId]);
+  }, [studentId]);
 
   const fetchAttendance = async () => {
     const token = localStorage.getItem('token');
@@ -23,7 +24,7 @@ const SchoolViewAllAttendance = () => {
 
     try {
       const response = await axios.get(
-        `https://attendipen-d65abecaffe3.herokuapp.com/attendance/view/${schoolId}`,
+        `https://attendipen-d65abecaffe3.herokuapp.com/attendance/view/${studentId}/1`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -34,6 +35,9 @@ const SchoolViewAllAttendance = () => {
 
       if (response.data.success) {
         setAttendance(response.data.attendance || []);
+        if (response.data.attendance && response.data.attendance.length > 0) {
+          setStudentName(response.data.attendance[0].student_name);
+        }
       }
     } catch (error) {
       console.error('Error fetching attendance:', error);
@@ -54,7 +58,9 @@ const SchoolViewAllAttendance = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-2xl font-bold mb-6 text-center">School Attendance Records</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center">
+          {studentName ? `${studentName}'s Attendance Records` : 'Attendance Records'}
+        </h2>
 
         {attendance.length === 0 ? (
           <div className="text-center text-gray-500">
@@ -67,9 +73,6 @@ const SchoolViewAllAttendance = () => {
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Student Name
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Class
@@ -87,9 +90,6 @@ const SchoolViewAllAttendance = () => {
                   <tr key={index}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {new Date(record.date).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {record.student_name}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {record.class_name}
@@ -117,4 +117,4 @@ const SchoolViewAllAttendance = () => {
   );
 };
 
-export default SchoolViewAllAttendance;
+export default ParentView;

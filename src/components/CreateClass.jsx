@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useFormik } from 'formik';
-import * as yup from 'yup';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
-import { Link, useNavigate } from "react-router-dom";
-import "../assets/style/addteacher.css";
+import "../assets/style/createClass.css";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,10 +12,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-const Setting = () => {
+const CreateClass = () => {
   const navigate = useNavigate();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [user, setUser] = useState(null);
+
   useEffect(() => {
     // Retrieve the user from localStorage
     const storedUser = localStorage.getItem("user");
@@ -29,50 +33,100 @@ const Setting = () => {
       }
     }
   }, []);
+  // Check authentication on component mount
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      Swal.fire({
+        title: "Authentication Required",
+        text: "Please login to continue",
+        icon: "warning",
+        confirmButtonText: "OK",
+      }).then(() => {
+        navigate("/login");
+      });
+    }
+  }, [navigate]);
 
-  const validationSchema = yup.object({
-    start_time: yup.string().required("Start time is required"),
-    end_time: yup.string().required("End time is required"),
-  });
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-  const formik = useFormik({
-    initialValues: {
-      start_time: "",
-      end_time: "",
-    },
-    validationSchema: validationSchema,
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
-    onSubmit: async (values) => {
-      try {
-        const response = await axios.put(
-          "https://attendipen-d65abecaffe3.herokuapp.com/settings/attendance_time",
-          values,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "Accept": "application/json",
-              "Authorization": `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("Authentication required. Please login again.");
+      setLoading(false);
+      Swal.fire({
+        title: "Authentication Required",
+        text: "Please login to continue",
+        icon: "warning",
+        confirmButtonText: "OK",
+      }).then(() => {
+        navigate("/login");
+      });
+      return;
+    }
 
-        if (response.status === 200) {
-          Swal.fire({
-            title: "Attendance settings updated successfully",
-            icon: "success",
-            confirmButtonText: "OK",
-          }).then(() => navigate("/View"));
+    if (!formData.name.trim()) {
+      setError("Class name is required");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        "https://attendipen-d65abecaffe3.herokuapp.com/classes",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
-      } catch (error) {
+      );
+
+      if (response.status === 201) {
         Swal.fire({
-          title: "Error",
-          text: error.response?.data?.message || "An error occurred",
+          title: "Success!",
+          text: "Class created successfully",
+          icon: "success",
+          confirmButtonText: "OK",
+        }).then(() => {
+          navigate("/List");
+        });
+      }
+    } catch (error) {
+      if (error.response?.status === 401) {
+        // Token is invalid or expired
+        localStorage.removeItem("token");
+        Swal.fire({
+          title: "Session Expired",
+          text: "Please login again to continue",
+          icon: "warning",
+          confirmButtonText: "OK",
+        }).then(() => {
+          navigate("/login");
+        });
+      } else {
+        setError(
+          error.response?.data?.message || "Failed to create class. Please try again."
+        );
+        Swal.fire({
+          title: "Error!",
+          text: error.response?.data?.message || "Failed to create class",
           icon: "error",
           confirmButtonText: "OK",
         });
       }
-    },
-  });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="flex h-screen bg-[#F9F9F9]">
@@ -139,9 +193,9 @@ const Setting = () => {
               {/* Class Details Dropdown */}
               <li className="drop">
                 <DropdownMenu>
-                  <DropdownMenuTrigger className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors hover:bg-white/10">
+                  <DropdownMenuTrigger className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors bg-white/10">
                     <svg className="w-5 h-5" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M14 33336H2.00004C1.36004 8.33336 0.833374 7.8067 0.833374 7.1667V4.95336C0.833374 4.50002 1.14669 4.04003 1.56669 3.87336L7.56669 1.47338C7.82002 1.37338 8.18006 1.37338 8.43339 1.47338L14.4334 3.87336C14.8534 4.04003 15.1667 4.50669 15.1667 4.95336V7.1667C15.1667 7.8067 14.64 8.33336 14 8.33336ZM8.00004 2.39338C7.97337 2.39338 7.94672 2.39335 7.93339 2.40001L1.94002 4.80004C1.90002 4.82004 1.83337 4.90669 1.83337 4.95336V7.1667C1.83337 7.26003 1.90671 7.33336 2.00004 7.33336H14C14.0934 7.33336 14.1667 7.26003 14.1667 7.1667V4.95336C14.1667 4.90669 14.1067 4.82004 14.0601 4.80004L8.06006 2.40001C8.04673 2.39335 8.02671 2.39338 8.00004 2.39338Z" fill="white" />
+                      <path d="M14 nnn33336H2.00004C1.36004 8.33336 0.833374 7.8067 0.833374 7.1667V4.95336C0.833374 4.50002 1.14669 4.04003 1.56669 3.87336L7.56669 1.47338C7.82002 1.37338 8.18006 1.37338 8.43339 1.47338L14.4334 3.87336C14.8534 4.04003 15.1667 4.50669 15.1667 4.95336V7.1667C15.1667 7.8067 14.64 8.33336 14 8.33336ZM8.00004 2.39338C7.97337 2.39338 7.94672 2.39335 7.93339 2.40001L1.94002 4.80004C1.90002 4.82004 1.83337 4.90669 1.83337 4.95336V7.1667C1.83337 7.26003 1.90671 7.33336 2.00004 7.33336H14C14.0934 7.33336 14.1667 7.26003 14.1667 7.1667V4.95336C14.1667 4.90669 14.1067 4.82004 14.0601 4.80004L8.06006 2.40001C8.04673 2.39335 8.02671 2.39338 8.00004 2.39338Z" fill="white" />
                       <path d="M14.6667 15.6667H1.33337C1.06004 15.6667 0.833374 15.44 0.833374 15.1667V13.1667C0.833374 12.5267 1.36004 12 2.00004 12H14C14.64 12 15.1667 12.5267 15.1667 13.1667V15.1667C15.1667 15.44 14.94 15.6667 14.6667 15.6667ZM1.83337 14.6667H14.1667V13.1667C14.1667 13.0733 14.0934 13 14 13H2.00004C1.90671 13 1.83337 13.0733 1.83337 13.1667V14.6667Z" fill="white" />
                       <path d="M2.66663 13C2.39329 13 2.16663 12.7733 2.16663 12.5V7.83331C2.16663 7.55998 2.39329 7.33331 2.66663 7.33331C2.93996 7.33331 3.16663 7.55998 3.16663 7.83331V12.5C3.16663 12.7733 2.93996 13 2.66663 13Z" fill="white" />
                       <path d="M5.33337 13C5.06004 13 4.83337 12.7733 4.83337 12.5V7.83331C4.83337 7.55998 5.06004 7.33331 5.33337 7.33331C5.60671 7.33331 5.83337 7.55998 5.83337 7.83331V12.5C5.83337 12.7733 5.60671 13 5.33337 13Z" fill="white" />
@@ -158,7 +212,7 @@ const Setting = () => {
                     align="start"
                     className="w-56 h-15 px-4 bg-[#152259] text-white contentdrop"
                   >
-                    <Link to="/CreateClass" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg">
+                    <Link to="/CreateClass" className="flex items-center gap-3 px-4 py-3 bg-white/10 rounded-lg">
                       <svg className="w-5 h-5" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M1.33337 9.05332V10.5C1.33337 13.8333 2.66671 15.1666 6.00004 15.1666H10C13.3334 15.1666 14.6667 13.8333 14.6667 10.5V6.49998C14.6667 3.16665 13.3334 1.83331 10 1.83331H6.00004C2.66671 1.83331 1.33337 3.16665 1.33337 6.49998" stroke="white" stroke-linecap="round" stroke-linejoin="round" />
                         <path d="M6.74003 7.93335H4.97337C4.55337 7.93335 4.21338 8.27332 4.21338 8.69332V12.1066H6.74003V7.93335V7.93335Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
@@ -170,7 +224,7 @@ const Setting = () => {
 
                     <Link to="/List" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg">
                       <svg className="w-5 h-5" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M14 33336H2.00004C1.36004 8.33336 0.833374 7.8067 0.833374 7.1667V4.95336C0.833374 4.50002 1.14669 4.04003 1.56669 3.87336L7.56669 1.47338C7.82002 1.37338 8.18006 1.37338 8.43339 1.47338L14.4334 3.87336C14.8534 4.04003 15.1667 4.50669 15.1667 4.95336V7.1667C15.1667 7.8067 14.64 8.33336 14 8.33336ZM8.00004 2.39338C7.97337 2.39338 7.94672 2.39335 7.93339 2.40001L1.94002 4.80004C1.90002 4.82004 1.83337 4.90669 1.83337 4.95336V7.1667C1.83337 7.26003 1.90671 7.33336 2.00004 7.33336H14C14.0934 7.33336 14.1667 7.26003 14.1667 7.1667V4.95336C14.1667 4.90669 14.1067 4.82004 14.0601 4.80004L8.06006 2.40001C8.04673 2.39335 8.02671 2.39338 8.00004 2.39338Z" fill="white" />
+                        <path d="M14 nnn33336H2.00004C1.36004 8.33336 0.833374 7.8067 0.833374 7.1667V4.95336C0.833374 4.50002 1.14669 4.04003 1.56669 3.87336L7.56669 1.47338C7.82002 1.37338 8.18006 1.37338 8.43339 1.47338L14.4334 3.87336C14.8534 4.04003 15.1667 4.50669 15.1667 4.95336V7.1667C15.1667 7.8067 14.64 8.33336 14 8.33336ZM8.00004 2.39338C7.97337 2.39338 7.94672 2.39335 7.93339 2.40001L1.94002 4.80004C1.90002 4.82004 1.83337 4.90669 1.83337 4.95336V7.1667C1.83337 7.26003 1.90671 7.33336 2.00004 7.33336H14C14.0934 7.33336 14.1667 7.26003 14.1667 7.1667V4.95336C14.1667 4.90669 14.1067 4.82004 14.0601 4.80004L8.06006 2.40001C8.04673 2.39335 8.02671 2.39338 8.00004 2.39338Z" fill="white" />
                         <path d="M14.6667 15.6667H1.33337C1.06004 15.6667 0.833374 15.44 0.833374 15.1667V13.1667C0.833374 12.5267 1.36004 12 2.00004 12H14C14.64 12 15.1667 12.5267 15.1667 13.1667V15.1667C15.1667 15.44 14.94 15.6667 14.6667 15.6667ZM1.83337 14.6667H14.1667V13.1667C14.1667 13.0733 14.0934 13 14 13H2.00004C1.90671 13 1.83337 13.0733 1.83337 13.1667V14.6667Z" fill="white" />
                         <path d="M2.66663 13C2.39329 13 2.16663 12.7733 2.16663 12.5V7.83331C2.16663 7.55998 2.39329 7.33331 2.66663 7.33331C2.93996 7.33331 3.16663 7.55998 3.16663 7.83331V12.5C3.16663 12.7733 2.93996 13 2.66663 13Z" fill="white" />
                         <path d="M5.33337 13C5.06004 13 4.83337 12.7733 4.83337 12.5V7.83331C4.83337 7.55998 5.06004 7.33331 5.33337 7.33331C5.60671 7.33331 5.83337 7.55998 5.83337 7.83331V12.5C5.83337 12.7733 5.60671 13 5.33337 13Z" fill="white" />
@@ -203,7 +257,7 @@ const Setting = () => {
                     align="start"
                     className="w-56 bg-[#152259] text-white contentdrop2"
                   >
-                    <Link to="/Setting" className="flex items-center gap-3 px-4 py-3 bg-white/10 rounded-lg">
+                    <Link to="/Setting" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg">
                       <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281722/setting-2_nxazfr.svg" alt="settings" className="w-5 h-5" />
                       <span>Attendance Setting</span>
                     </Link>
@@ -271,7 +325,7 @@ const Setting = () => {
         {/* Header */}
         <header className="flex items-center justify-between mb-8">
           <div className="description">
-            <h1 className="text-2xl font-semibold text-[#4D44B5]">Attendance</h1>
+            <h1 className="text-2xl font-semibold text-[#4D44B5]">Create Class</h1>
           </div>
 
           <div className="flex items-center gap-9 control">
@@ -315,39 +369,46 @@ const Setting = () => {
             </div>
           </div>
         </header>
+        <div className="cove">
+          <div className="cover-info">
+            <div className="student-details">
+            <h2 className="m-white">Create New Class</h2>
+            </div>
+            <div className="form-container class">
+            <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                  <label htmlFor="name">Class Name</label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="Enter class name (e.g., JSS 1)"
+                    required
+                  />
+                  {error && <p className="error-message">{error}</p>}
+                </div>
 
-        <div className="main-content">
-          <div className="content">
-          <div className="student-details">
-            <h1>Attendance Setting </h1>
-          </div>
-            <form onSubmit={formik.handleSubmit}>
-              <input
-                type="text"
-                name="start_time"
-                placeholder="Start Time (HH:MM)"
-                value={formik.values.start_time}
-                onChange={formik.handleChange}
-              />
-              {formik.errors.start_time && <p className="error">{formik.errors.start_time}</p>}
-
-              <input
-                type="text"
-                name="end_time"
-                placeholder="End Time (HH:MM)"
-                value={formik.values.end_time}
-                onChange={formik.handleChange}
-              />
-              {formik.errors.end_time && <p className="error">{formik.errors.end_time}</p>}
-
-              <button type="submit">Update</button>
-            </form>
+                <div className="button-group">
+                
+                  <button
+                    type="submit"
+                    className="create-btn"
+                    disabled={loading}
+                  >
+                    {loading ? "Creating..." : "Create Class"}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
+        
       </div>
     </div>
 
   );
 };
 
-export default Setting;
+export default CreateClass;
