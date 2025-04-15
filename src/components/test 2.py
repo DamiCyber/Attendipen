@@ -292,7 +292,7 @@ def test_send_parent_invite():
 
 # Test 17: Accept Parent Invite
 def test_accept_parent_invite():
-    url = f"{BASE_URL}/invites/accept_admission/3"
+    url = f"{BASE_URL}/invites/accept_admission/273"
     headers = {"Authorization": f"Bearer {tokens['parent']}"}
     response = requests.post(url, headers=headers)
     print_response(response)

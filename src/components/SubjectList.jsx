@@ -136,16 +136,28 @@ const SubjectList = () => {
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="bg-white divide-y divide-gray-200">
               {subjects.map((subject) => (
-                <tr key={subject.id}>
-                  <td>{subject.name}</td>
-                  <td>{subject.description}</td>
-                  <td>
-                    <button onClick={() => navigate(`/assign-subject/${subject.id}`)}>
+                <tr key={subject.subject_id}>
+                  <td className="px-6 py-4 whitespace-nowrap">{subject.subject_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{subject.class_name || 'Not assigned'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-gray-500">ID: {subject.subject_id}</span>
+                    {subject.subject_class_id && (
+                      <span className="ml-2 text-gray-500">Class ID: {subject.subject_class_id}</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button
+                      onClick={() => navigate(`/subjects/assign/${subject.subject_id}`)}
+                      className="text-indigo-600 hover:text-indigo-900 mr-4"
+                    >
                       Assign to Class
                     </button>
-                    <button onClick={() => handleDelete(subject.id)}>
+                    <button
+                      onClick={() => handleDelete(subject.subject_id)}
+                      className="text-red-600 hover:text-red-900"
+                    >
                       Delete
                     </button>
                   </td>
