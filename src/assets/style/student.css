@@ -227,6 +227,8 @@ color: white ;
   .wides{
   width: 800px;
   }
-  
+  select{
+    color: black !important;
+  }
   /* overflow-x: hidden; */
   /* height: 494px; */

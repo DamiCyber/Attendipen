@@ -15,13 +15,9 @@ const SubjectList = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        console.log("No token found, redirecting to login");
         navigate("/login");
         return;
       }
-
-      console.log("Fetching subjects...");
-      console.log("Using token:", token);
 
       const response = await axios.get(
         `${BASE_URL}/subjects/list`,
@@ -33,12 +29,9 @@ const SubjectList = () => {
         }
       );
       
-      console.log("API Response:", response.data);
-      
       if (response.data && Array.isArray(response.data)) {
         setSubjects(response.data);
       } else {
-        console.error("Invalid data format received:", response.data);
         setError("Invalid data format received from server");
       }
       
@@ -74,7 +67,6 @@ const SubjectList = () => {
       if (result.isConfirmed) {
         const token = localStorage.getItem("token");
         if (!token) {
-          console.log("No token found, redirecting to login");
           navigate("/login");
           return;
         }
@@ -89,7 +81,7 @@ const SubjectList = () => {
           }
         );
 
-        setSubjects(subjects.filter((subject) => subject.id !== subjectId));
+        setSubjects(subjects.filter((subject) => subject.subject_id !== subjectId));
         Swal.fire("Deleted!", "Subject has been deleted.", "success");
       }
     } catch (error) {
@@ -103,53 +95,95 @@ const SubjectList = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+          {error}
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div>
-      <header>
-        <h1>Subjects</h1>
-        <button onClick={() => navigate("/CreateSubject")}>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">Subjects</h1>
+        <button
+          onClick={() => navigate("/CreateSubject")}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
           Add New Subject
         </button>
-      </header>
+      </div>
 
-      <div>
-        {subjects.length === 0 ? (
-          <div>
-            <p>No subjects found</p>
-            <button onClick={() => navigate("/CreateSubject")}>
-              Create New Subject
-            </button>
-          </div>
-        ) : (
-          <table>
-            <thead>
+      {subjects.length === 0 ? (
+        <div className="text-center py-8">
+          <p className="text-gray-600 mb-4">No subjects found</p>
+          <button
+            onClick={() => navigate("/CreateSubject")}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Create New Subject
+          </button>
+        </div>
+      ) : (
+        <div className="bg-white shadow-md rounded-lg overflow-hidden">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
               <tr>
-                <th>Subject Name</th>
-                <th>Description</th>
-                <th>Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Subject Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Class
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {subjects.map((subject) => (
-                <tr key={subject.subject_id}>
-                  <td className="px-6 py-4 whitespace-nowrap">{subject.subject_name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{subject.class_name || 'Not assigned'}</td>
+                <tr key={subject.subject_id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-gray-500">ID: {subject.subject_id}</span>
-                    {subject.subject_class_id && (
-                      <span className="ml-2 text-gray-500">Class ID: {subject.subject_class_id}</span>
+                    <div className="text-sm font-medium text-gray-900">
+                      {subject.subject_name}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      ID: {subject.subject_id}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">
+                      {subject.class_name || 'Not assigned'}
+                    </div>
+                    {subject.class_id && (
+                      <div className="text-sm text-gray-500">
+                        Class ID: {subject.class_id}
+                      </div>
                     )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      subject.subject_class_id ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {subject.subject_class_id ? 'Assigned' : 'Unassigned'}
+                    </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button
-                      onClick={() => navigate(`/subjects/assign/${subject.subject_id}`)}
+                      onClick={() => navigate(`/assign-subject/${subject.subject_id}`)}
                       className="text-indigo-600 hover:text-indigo-900 mr-4"
                     >
                       Assign to Class
@@ -165,8 +199,8 @@ const SubjectList = () => {
               ))}
             </tbody>
           </table>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

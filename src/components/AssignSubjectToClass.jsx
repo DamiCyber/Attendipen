@@ -89,7 +89,7 @@ const AssignSubjectToClass = () => {
             text: "Subject assigned to class successfully",
             icon: "success",
           }).then(() => {
-            navigate("/subjects");
+            navigate("/SubjectList");
           });
         }
       } catch (error) {
@@ -135,8 +135,8 @@ const AssignSubjectToClass = () => {
                 >
                   <option value="">Select a subject</option>
                   {subjects.map((subject) => (
-                    <option key={subject.id} value={subject.id}>
-                      {subject.name}
+                    <option key={subject.subject_id} value={subject.subject_id}>
+                      {subject.subject_name} (ID: {subject.subject_id})
                     </option>
                   ))}
                 </select>

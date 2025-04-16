@@ -33,8 +33,9 @@ import ParentView from './components/ParentView'
 import ResultUpload from './components/ResultUpload'
 import StudentProfile from './components/StudentProfile'
 import StudentIdCard from './components/StudentIdCard'
-import { Link } from 'react-router-dom'
 import Admission from './components/Admission'
+import AssignSubjectToTeacher from './components/AssignSubjectToTeacher'
+import AssignSubjectToStudent from './components/AssignSubjectToStudent'
 
 const App = () => {
   return (
@@ -73,6 +74,8 @@ const App = () => {
         <Route path="/SubjectList" element={<SubjectList />} />
         <Route path="/AssignSubjectToClass" element={<AssignSubjectToClass />} />
         <Route path="/assign-subject/:subjectId" element={<AssignSubjectToClass />} />
+        <Route path="/AssignSubjectToTeacher" element={<AssignSubjectToTeacher />} />
+        <Route path="/AssignSubjectToStudent" element={<AssignSubjectToStudent />} />
 
         {/* Attendance Routes */}
         <Route path="/View" element={<ViewAttendance />} />
@@ -96,9 +99,7 @@ const App = () => {
         {/* Result Management Routes */}
         <Route path="/ResultUpload" element={<ResultUpload />} />
 
-        {/* Settings Routes */}
-        <Route path="/Setting" element={<Setting />} />
-        <Route path="/settings" element={<Setting />} />
+        {/* Settings Routes */}    
         <Route path="/attendance" element={<Setting />} />
       </Routes>
     </>

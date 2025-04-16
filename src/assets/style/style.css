@@ -16,8 +16,9 @@ body{
 .logo {
   margin-left: 10px;
 }
+
 .body{
-  background-color: #152259;
+color: black !important;
 width: 100%;
 height: 100vh;
 }
