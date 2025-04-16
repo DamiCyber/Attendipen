@@ -6,10 +6,10 @@ import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import "../assets/style/profile.css";
 
-const AssignSubjectToTeacher = () => {
+const AssignSubjectToStudent = () => {
   const navigate = useNavigate();
   const [subjects, setSubjects] = useState([]);
-  const [teachers, setTeachers] = useState([]);
+  const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const BASE_URL = "https://attendipen-d65abecaffe3.herokuapp.com";
@@ -35,8 +35,8 @@ const AssignSubjectToTeacher = () => {
       );
       setSubjects(subjectsResponse.data);
 
-      // Fetch teachers
-      const teachersResponse = await axios.get(
+      // Fetch students
+      const studentsResponse = await axios.get(
         `${BASE_URL}/students/all`,
         {
           headers: {
@@ -44,7 +44,7 @@ const AssignSubjectToTeacher = () => {
           },
         }
       );
-      setTeachers(teachersResponse.data);
+      setStudents(studentsResponse.data);
 
     } catch (error) {
       Swal.fire({
@@ -63,13 +63,13 @@ const AssignSubjectToTeacher = () => {
 
   const validationSchema = yup.object({
     subject_class_id: yup.number().required("Subject-Class combination is required"),
-    id: yup.number().required("Student is required"),
+    student_id: yup.number().required("Student is required"),
   });
 
   const formik = useFormik({
     initialValues: {
       subject_class_id: "",
-      id: "",
+      student_id: "",
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
@@ -81,15 +81,11 @@ const AssignSubjectToTeacher = () => {
           return;
         }
 
-        // Get the selected teacher's data
-        const selectedTeacher = teachers.find(t => t.id === parseInt(values.id));
-        const selectedSubject = subjects.find(s => s.subject_class_id === parseInt(values.subject_class_id));
-
         const response = await axios.post(
-          `${BASE_URL}/subjects/assign_teacher`,
+          `${BASE_URL}/subjects/register_student`,
           {
-            subject_class_id: values.subject_class_id,
-            teacher_id: selectedTeacher.id
+            subject_class_id: parseInt(values.subject_class_id),
+            student_id: parseInt(values.student_id)
           },
           {
             headers: {
@@ -102,16 +98,16 @@ const AssignSubjectToTeacher = () => {
         if (response.status === 200) {
           Swal.fire({
             title: "Success",
-            text: `Student ${selectedTeacher.name} assigned to ${selectedSubject.subject_name} successfully`,
+            text: "Student registered to subject successfully",
             icon: "success",
           });
-          fetchData(); // Refresh the data
+          formik.resetForm();
         }
 
       } catch (error) {
         Swal.fire({
           title: "Error",
-          text: error.response?.data?.message || "Failed to assign teacher to subject",
+          text: error.response?.data?.message || "Failed to register student to subject",
           icon: "error",
         });
       } finally {
@@ -132,17 +128,17 @@ const AssignSubjectToTeacher = () => {
         {/* Header */}
         <header className="flex items-center justify-between mb-8">
           <div className="description">
-            <h1 className="text-2xl font-semibold text-[#4D44B5]">Assign Subject to Teacher</h1>
+            <h1 className="text-2xl font-semibold text-[#4D44B5]">Register Student to Subject</h1>
           </div>
         </header>
 
         <div className="main-content">
           <div className="content">
             <div className="student-details">
-              <h2 className='m-white'>Assign Subject</h2>
+              <h2 className='m-white'>Register Student</h2>
             </div>
 
-            {/* Assignment Form */}
+            {/* Registration Form */}
             <form onSubmit={formik.handleSubmit} className="profile-form mb-8">
               <div className="form-group">
                 <label htmlFor="subject_class_id">Select Subject-Class</label>
@@ -167,29 +163,29 @@ const AssignSubjectToTeacher = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="id">Select Teacher</label>
+                <label htmlFor="student_id">Select Student</label>
                 <select
-                  id="id"
-                  name="id"
+                  id="student_id"
+                  name="student_id"
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  value={formik.values.id}
+                  value={formik.values.student_id}
                   disabled={loading}
                 >
-                  <option value="">Select a Student</option>
-                  {teachers.map((Student) => (
-                    <option key={Student.id} value={Student.id}>
-                      {Student.name}
+                  <option value="">Select a student</option>
+                  {students.map((student) => (
+                    <option key={student.id} value={student.id}>
+                      {student.name}
                     </option>
                   ))}
                 </select>
-                {formik.touched.id && formik.errors.id && (
-                  <div className="error">{formik.errors.id}</div>
+                {formik.touched.student_id && formik.errors.student_id && (
+                  <div className="error">{formik.errors.student_id}</div>
                 )}
               </div>
 
               <button type="submit" className="submit-btn" disabled={loading}>
-                {loading ? "Processing..." : "Assign Student"}
+                {loading ? "Processing..." : "Register Student"}
               </button>
             </form>
           </div>
@@ -199,4 +195,4 @@ const AssignSubjectToTeacher = () => {
   );
 };
 
-export default AssignSubjectToTeacher;
+export default AssignSubjectToStudent;
