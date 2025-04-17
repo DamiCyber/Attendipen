@@ -581,20 +581,20 @@ const Student = () => {
               </div>
             </div>
           
-            <div className="wider">
+            <div className="wider flex justify-center">
               {students.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 wides">
                   {students.map((student) => (
                     <div
                       key={student.id}
-                      className="bg-white shadow-md rounded-lg p-4 flex flex-col items-center justify-center space-y-4 cursor-pointer hover:shadow-lg transition-shadow duration-300"
+                      className="bg-white shadow-md rounded-lg p-6 flex flex-col items-center justify-center space-y-4 cursor-pointer hover:shadow-lg transition-shadow duration-300"
                       onClick={() => {
                         console.log('Navigating to student profile:', student.id);
                         navigate(`/student/profile/${student.id}`);
                       }}
                     >
                       {/* Centered Profile Picture */}
-                      <div className="w-20 h-20 rounded-full overflow-hidden border border-gray-300 mx-auto">
+                      <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-gray-200 mx-auto">
                         {studentPictures[student.id] ? (
                           <img
                             src={studentPictures[student.id]}
@@ -602,22 +602,33 @@ const Student = () => {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full bg-gray-200 flex items-center justify-center text-xl font-semibold text-gray-500">
+                          <div className="w-full h-full bg-gray-100 flex items-center justify-center text-xl font-semibold text-gray-400">
                             {student.name ? student.name.charAt(0).toUpperCase() : "?"}
                           </div>
                         )}
                       </div>
 
                       {/* Centered Student Name */}
-                      <h3 className="text-lg font-semibold text-gray-800 text-center">
+                      <h3 className="text-xl font-semibold text-gray-800 text-center">
                         {student.name || "Unnamed Student"}
                       </h3>
 
-                      {/* Student Info with Padding */}
-                      <div className="text-left w-full space-y-1 px-4 py-3 studeo">
-                        <p className="text-sm text-gray-600"><span className="font-medium">ID:</span> {student.id}</p>
-                        <p className="text-sm text-gray-600"><span className="font-medium">DOB:</span> {student.dob || "Not set"}</p>
-                        <p className="text-sm text-gray-600"><span className="font-medium">Gender:</span> {student.gender ? student.gender.charAt(0).toUpperCase() + student.gender.slice(1) : "Not set"}</p>               
+                      {/* Student Info with Enhanced Styling */}
+                      <div className="w-full space-y-3 px-4 py-3 bg-gray-50 rounded-lg">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium text-gray-600">ID:</span>
+                          <span className="text-sm text-gray-700">{student.id}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium text-gray-600">DOB:</span>
+                          <span className="text-sm text-gray-700">{student.dob || "Not set"}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium text-gray-600">Gender:</span>
+                          <span className="text-sm text-gray-700">
+                            {student.gender ? student.gender.charAt(0).toUpperCase() + student.gender.slice(1) : "Not set"}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -635,9 +646,6 @@ const Student = () => {
               )}
             </div>
           
-           
-
-
           </div>
         </div>
       </div>
