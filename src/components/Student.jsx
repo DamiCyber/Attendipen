@@ -579,8 +579,7 @@ const Student = () => {
                 </div>
 
               </div>
-            </div>
-          
+            </div>      
             <div className="wider flex justify-center">
               {students.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 wides">
@@ -644,8 +643,7 @@ const Student = () => {
                   </button>
                 </div>
               )}
-            </div>
-          
+            </div>       
           </div>
         </div>
       </div>

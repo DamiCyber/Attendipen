@@ -322,7 +322,7 @@ const Teachers = () => {
 
             </div>
           </div>
-          <div className="Api-map-out bg-white rounded-lg shadow-md p-6">
+          <div className="Api-map-out rounded-lg shadow-md p-6">
             <div className="identity flex justify-between items-center mb-4 p-4 bg-gray-50 rounded-lg">
               <h2 className="text-lg font-semibold text-gray-700 w-2/3">Name</h2>
               <h2 className="text-lg font-semibold text-gray-700 w-1/3">Email</h2>

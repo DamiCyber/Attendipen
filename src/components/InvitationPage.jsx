@@ -15,13 +15,9 @@ const InvitationPage = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        console.log("No token found, redirecting to login");
         navigate("/login");
         return;
       }
-
-      console.log("Fetching invites...");
-      console.log("Using token:", token);
 
       const response = await axios.get(
         `${BASE_URL}/invites/my_invites`,
@@ -32,16 +28,40 @@ const InvitationPage = () => {
           },
         }
       );
-      
-      console.log("API Response:", response.data);
-      
+
       if (response.data && Array.isArray(response.data)) {
-        setInvites(response.data);
+        // Fetch school details for each invite
+        const invitesWithSchoolDetails = await Promise.all(
+          response.data.map(async (invite) => {
+            try {
+              const schoolResponse = await axios.get(
+                `${BASE_URL}/schools/${invite.school_id}`,
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                  },
+                }
+              );
+              return {
+                ...invite,
+                school_name: schoolResponse.data.name,
+                school_email: schoolResponse.data.email
+              };
+            } catch (error) {
+              console.error("Error fetching school details:", error);
+              return {
+                ...invite,
+                school_name: "Unknown School",
+                school_email: "Unknown Email"
+              };
+            }
+          })
+        );
+        setInvites(invitesWithSchoolDetails);
       } else {
-        console.error("Invalid data format received:", response.data);
         setError("Invalid data format received from server");
       }
-      
       setLoading(false);
     } catch (error) {
       console.error("Error fetching invites:", error);
@@ -63,13 +83,9 @@ const InvitationPage = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        console.log("No token found, redirecting to login");
         navigate("/login");
         return;
       }
-
-      console.log("Accepting teacher offer for invite ID:", inviteId);
-      console.log("Using token:", token);
 
       const response = await axios.post(
         `${BASE_URL}/invites/accept_offer/${inviteId}`,
@@ -82,37 +98,21 @@ const InvitationPage = () => {
         }
       );
 
-      console.log("Accept offer response:", response.data);
-
       if (response.status === 200) {
-        console.log("Teacher offer accepted successfully");
         Swal.fire({
           title: "Success",
           text: "Teacher offer accepted successfully",
           icon: "success",
         }).then(() => {
-          // Refresh invites list
           fetchInvites();
-          // Navigate to teacher dashboard
           navigate("/invitation");
         });
-      } else {
-        console.warn("Unexpected response status:", response.status);
-        throw new Error("Unexpected response from server");
       }
     } catch (error) {
       console.error("Error accepting teacher offer:", error);
-      console.error("Error response:", error.response);
-      
-      const errorMessage = error.response?.data?.message || 
-                         error.message || 
-                         "Failed to accept teacher offer";
-      
-      console.error("Error message:", errorMessage);
-      
       Swal.fire({
         title: "Error",
-        text: errorMessage,
+        text: error.response?.data?.message || "Failed to accept teacher offer",
         icon: "error",
       });
     }
@@ -126,8 +126,6 @@ const InvitationPage = () => {
         return;
       }
 
-      console.log("Rejecting invite:", inviteId);
-
       const response = await axios.post(
         `${BASE_URL}/invites/${inviteId}/reject`,
         {},
@@ -139,15 +137,12 @@ const InvitationPage = () => {
         }
       );
 
-      console.log("Reject response:", response.data);
-
       if (response.status === 200) {
         Swal.fire({
           title: "Success",
           text: "Invitation rejected successfully",
           icon: "success",
         });
-        // Refresh invites list
         fetchInvites();
       }
     } catch (error) {
@@ -161,56 +156,78 @@ const InvitationPage = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-red-500">{error}</div>
+      </div>
+    );
   }
 
   return (
-    <div>
-      <header>
-        <h1>My Invitations</h1>
-      </header>
-
-      <div>
+    <div className="min-h-screen bg-gray-100 p-8">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-2xl font-semibold text-gray-800 mb-6">My Invitations</h1>
+        
         {invites.length === 0 ? (
-          <div>
-            <p>No invitations found</p>
+          <div className="bg-white rounded-lg shadow-md p-6 text-center">
+            <p className="text-gray-600">No invitations found</p>
           </div>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>School</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invites.map((invite) => (
-                <tr key={invite.id}>
-                  <td>{invite.school_name}</td>
-                  <td>{invite.role}</td>
-                  <td>{invite.status}</td>
-                  <td>
-                    {invite.status === 'pending' && (
-                      <>
-                        <button onClick={() => handleAcceptInvite(invite.id)}>
-                          Accept Offer
-                        </button>
-                        <button onClick={() => handleRejectInvite(invite.id)}>
-                          Reject
-                        </button>
-                      </>
-                    )}
-                  </td>
+          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Salary</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {invites.map((invite) => (
+                  <tr key={invite.id}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{invite.salary}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        invite.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                        invite.status === 'accepted' ? 'bg-green-100 text-green-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {invite.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      {invite.status === 'pending' && (
+                        <div className="space-x-2">
+                          <button
+                            onClick={() => handleAcceptInvite(invite.id)}
+                            className="text-green-600 hover:text-green-900"
+                          >
+                            Accept
+                          </button>
+                          <button
+                            onClick={() => handleRejectInvite(invite.id)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

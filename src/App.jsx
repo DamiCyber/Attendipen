@@ -18,8 +18,7 @@ import ViewAllAttendance from './components/ViewAllAttendance'
 import Mark from './components/Mark'
 import AssignStudent from './components/AssignStudent'
 import NoStudent from './components/NoStudent'
-import Profile from './components/Profile'
-import ViewProfile from './components/ViewProfile'
+import ProfileEdit from './components/ProfileEdit'
 import SchoolViewAllAttendance from './components/SchoolViewAllAttendance'
 import ListOfParents from './components/ListOfParents'
 import CreateClass from './components/CreateClass'
@@ -86,8 +85,7 @@ const App = () => {
         <Route path="/parent/view/:studentId" element={<ParentView />} />
 
         {/* Profile Routes */}
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/ViewProfile" element={<ViewProfile />} />
+        <Route path="/ProfileEdit" element={<ProfileEdit />} />
         <Route path="/MyProfile" element={<MyProfile />} />
 
         {/* School Management Routes */}
