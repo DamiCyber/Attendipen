@@ -580,13 +580,18 @@ const Student = () => {
 
               </div>
             </div>
+          
             <div className="wider">
               {students.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6  wides">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 wides">
                   {students.map((student) => (
                     <div
                       key={student.id}
-                      className="bg-white shadow-md rounded-lg p-4 flex flex-col items-center justify-center space-y-4"
+                      className="bg-white shadow-md rounded-lg p-4 flex flex-col items-center justify-center space-y-4 cursor-pointer hover:shadow-lg transition-shadow duration-300"
+                      onClick={() => {
+                        console.log('Navigating to student profile:', student.id);
+                        navigate(`/student/profile/${student.id}`);
+                      }}
                     >
                       {/* Centered Profile Picture */}
                       <div className="w-20 h-20 rounded-full overflow-hidden border border-gray-300 mx-auto">
@@ -611,10 +616,8 @@ const Student = () => {
                       {/* Student Info with Padding */}
                       <div className="text-left w-full space-y-1 px-4 py-3 studeo">
                         <p className="text-sm text-gray-600"><span className="font-medium">ID:</span> {student.id}</p>
-                        <p className="text-sm text-gray-600"><span className="font-medium">Email:</span> {student.email || "Not set"}</p>
-                        <p className="text-sm text-gray-600"><span className="font-medium">Gender:</span> {student.gender ? student.gender.charAt(0).toUpperCase() + student.gender.slice(1) : "Not set"}</p>
-                        <p className="text-sm text-gray-600"><span className="font-medium">Phone:</span> {student.phone_number || "Not set"}</p>
-                        <p className="text-sm text-gray-600"><span className="font-medium">Address:</span> {student.address || "Not set"}</p>
+                        <p className="text-sm text-gray-600"><span className="font-medium">DOB:</span> {student.dob || "Not set"}</p>
+                        <p className="text-sm text-gray-600"><span className="font-medium">Gender:</span> {student.gender ? student.gender.charAt(0).toUpperCase() + student.gender.slice(1) : "Not set"}</p>               
                       </div>
                     </div>
                   ))}
@@ -631,6 +634,8 @@ const Student = () => {
                 </div>
               )}
             </div>
+          
+           
 
 
           </div>

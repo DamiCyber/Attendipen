@@ -322,21 +322,20 @@ const Teachers = () => {
 
             </div>
           </div>
-          <div className="Api-map-out">
-            {/* Api to be displayed here */}
-            <div className="identity">
-              <h2>Name</h2>
-              <h2>Gmail</h2>
-              <h2>Gender</h2>
+          <div className="Api-map-out bg-white rounded-lg shadow-md p-6">
+            <div className="identity flex justify-between items-center mb-4 p-4 bg-gray-50 rounded-lg">
+              <h2 className="text-lg font-semibold text-gray-700 w-2/3">Name</h2>
+              <h2 className="text-lg font-semibold text-gray-700 w-1/3">Email</h2>
+              <h2 className="text-lg font-semibold text-gray-700 w-1/3">Gender</h2>
             </div>
 
-            <div className="teachers-joint">
+            <div className="teachers-joint" style={{ overflowY: 'scroll', marginBottom: '8px !important' }}>
               {teachers.map((teacher) => (
                 <div key={teacher.id}
-                  className="teacher-card cover-teacher">
-                  <div>{teacher.name}</div>
-                  <div> {teacher.email}</div>
-                  <div>{teacher.gender}</div>
+                  className="teacher-card cover-teacher mb-4 flex justify-between items-center p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow duration-200">
+                  <div className="w-2/3 text-gray-700">{teacher.name}</div>
+                  <div className="w-1/3 text-gray-600">{teacher.email}</div>
+                  <div className="w-1/3 text-gray-600">{teacher.gender}</div>
                 </div>
               ))}
             </div>

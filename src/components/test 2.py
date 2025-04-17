@@ -212,7 +212,7 @@ def test_mark_attendance():
     url = f"{BASE_URL}/attendance/mark"
     headers = {"Authorization": f"Bearer {tokens['teacher']}"}
     payload = {
-        #"class_id": 1,
+        "class_id": 1,
         "student_id": 1,
         "status": "present"
     }
@@ -301,6 +301,13 @@ def test_accept_parent_invite():
 def test_fetch_invites():
     url = f"{BASE_URL}/invites/my_invites"
     headers = {"Authorization": f"Bearer {tokens['teacher']}"}
+
+    response = requests.get(url, headers=headers)
+    print_response(response)
+    
+def test_fetch_invites():
+    url = f"{BASE_URL}/invites/my_invites"
+    headers = {"Authorization": f"Bearer {tokens['parent']}"}
 
     response = requests.get(url, headers=headers)
     print_response(response)
@@ -393,7 +400,7 @@ def test_register_student_to_subject():
     }
     response = requests.post(url, headers=headers, json=data)
     print_response(response)
-
+# /subjects/my_subjects
 def test_upload_result():
     url = f"{BASE_URL}/subjects/upload_result"
     headers = {"Authorization": f"Bearer {tokens['teacher']}", "Content-Type": "application/json"}

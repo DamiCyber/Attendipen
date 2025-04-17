@@ -32,7 +32,6 @@ import InvitationPage from './components/InvitationPage'
 import ParentView from './components/ParentView'
 import ResultUpload from './components/ResultUpload'
 import StudentProfile from './components/StudentProfile'
-import StudentIdCard from './components/StudentIdCard'
 import Admission from './components/Admission'
 import AssignSubjectToTeacher from './components/AssignSubjectToTeacher'
 import AssignSubjectToStudent from './components/AssignSubjectToStudent'
@@ -62,7 +61,6 @@ const App = () => {
         <Route path="/AssignStudents" element={<AssignStudent />} />
         <Route path="/class/:classId/NoStudent" element={<NoStudent />} />
         <Route path="/student/profile/:studentId" element={<StudentProfile />} />
-        <Route path="/student/id-card/:id" element={<StudentIdCard />} />
         <Route path="/students/admission/:inviteId" element={<Admission />} />
 
         {/* Class Management Routes */}

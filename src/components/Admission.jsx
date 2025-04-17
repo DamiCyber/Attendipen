@@ -1,27 +1,79 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const BASE_URL = "https://attendipen-d65abecaffe3.herokuapp.com";
 
 const Admission = () => {
-  const { inviteId } = useParams();
   const navigate = useNavigate();
+  const [invites, setInvites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [admissionData, setAdmissionData] = useState(null);
 
-  const fetchAdmissionDetails = async () => {
+  const fetchInvites = async () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
+        console.log("No token found, redirecting to login");
         navigate("/login");
         return;
       }
 
+      console.log("Fetching admission invites...");
+      console.log("Using token:", token);
+
       const response = await axios.get(
-        `${BASE_URL}/invites/admission/${inviteId}`,
+        `${BASE_URL}/invites/my_invites`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      
+      console.log("API Response:", response.data);
+      
+      if (response.data && Array.isArray(response.data)) {
+        setInvites(response.data);
+      } else {
+        console.error("Invalid data format received:", response.data);
+        setError("Invalid data format received from server");
+      }
+      
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching admission invites:", error);
+      setError(error.response?.data?.message || "Failed to fetch admission invites");
+      Swal.fire({
+        title: "Error",
+        text: error.response?.data?.message || "Failed to fetch admission invites",
+        icon: "error",
+      });
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchInvites();
+  }, [navigate]);
+
+  const handleAcceptInvite = async (inviteId) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.log("No token found, redirecting to login");
+        navigate("/login");
+        return;
+      }
+
+      console.log("Accepting admission for invite ID:", inviteId);
+      console.log("Using token:", token);
+
+      const response = await axios.post(
+        `${BASE_URL}/invites/accept_admission/${inviteId}`,
+        {},
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -30,89 +82,40 @@ const Admission = () => {
         }
       );
 
-      setAdmissionData(response.data);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching admission details:", error);
-      setError(error.response?.data?.message || "Failed to fetch admission details");
-      Swal.fire({
-        title: "Error",
-        text: error.response?.data?.message || "Failed to fetch admission details",
-        icon: "error",
-      });
-      setLoading(false);
-    }
-  };
+      console.log("Accept admission response:", response.data);
 
-  const handleAcceptAdmission = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        navigate("/login");
-        return;
-      }
-
-      const result = await Swal.fire({
-        title: "Accept Admission",
-        text: "Are you sure you want to accept this admission? This will enroll the student in the school.",
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, accept it!",
-      });
-
-      if (result.isConfirmed) {
-        setLoading(true);
-        const response = await axios.post(
-          `${BASE_URL}/invites/accept_admission/${inviteId}`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (response.status === 200 || response.status === 201) {
-          Swal.fire({
-            title: "Success!",
-            text: "Admission accepted successfully. The student has been enrolled in the school.",
-            icon: "success",
-          }).then(() => {
-            // Redirect based on user type
-            const userType = localStorage.getItem("userType");
-            if (userType === "parent") {
-              navigate("/parent/dashboard");
-            } else {
-              navigate("/dashboard");
-            }
-          });
-        }
+      if (response.status === 200) {
+        console.log("Admission accepted successfully");
+        // Refresh invites list
+        fetchInvites();
+        // Navigate to admission page
+        navigate("/admission");
+      } else {
+        console.warn("Unexpected response status:", response.status);
+        throw new Error("Unexpected response from server");
       }
     } catch (error) {
       console.error("Error accepting admission:", error);
+      console.error("Error response:", error.response);
+      
+      const errorMessage = error.response?.data?.message || 
+                         error.message || 
+                         "Failed to accept admission";
+      
+      console.error("Error message:", errorMessage);
+      
       Swal.fire({
         title: "Error",
-        text: error.response?.data?.message || "Failed to accept admission",
+        text: errorMessage,
         icon: "error",
       });
-    } finally {
-      setLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (inviteId) {
-      fetchAdmissionDetails();
-    }
-  }, [inviteId]);
 
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#4D44B5]"></div>
       </div>
     );
   }
@@ -120,77 +123,66 @@ const Admission = () => {
   if (error) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <div className="text-red-500 text-center">
-          <p className="text-xl font-bold">Error</p>
-          <p>{error}</p>
-        </div>
+        <div className="text-red-500">Error: {error}</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
-      <div className="relative py-3 sm:max-w-xl sm:mx-auto">
-        <div className="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
-          <div className="max-w-md mx-auto">
-            <div className="divide-y divide-gray-200">
-              <div className="py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7">
-                <h2 className="text-2xl font-bold mb-6 text-center">Admission Details</h2>
-                
-                {admissionData && (
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Student Name:</span>
-                      <span>{admissionData.student_name}</span>
+    <div className="min-h-screen bg-gray-100 p-4">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-2xl font-bold mb-6">Admission Invites</h1>
+        
+        {invites.length === 0 ? (
+          <div className="text-center text-gray-500">
+            No admission invites available
+          </div>
+        ) : (
+          <div className="grid gap-4">
+            {invites.map((invite) => (
+              <div key={invite.id} className="bg-white p-6 rounded-lg shadow">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h2 className="text-xl font-semibold">{invite.student_name}</h2>
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      <p className="text-gray-600">
+                        <span className="font-medium">Class ID:</span> {invite.class_id}
+                      </p>
+                      <p className="text-gray-600">
+                        <span className="font-medium">School ID:</span> {invite.school_id}
+                      </p>
+                      <p className="text-gray-600">
+                        <span className="font-medium">Invited on:</span> {new Date(invite.created_at).toLocaleDateString()}
+                      </p>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Class:</span>
-                      <span>{admissionData.class_name}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-semibold">School:</span>
-                      <span>{admissionData.school_name}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Status:</span>
-                      <span className={`px-2 py-1 rounded ${
-                        admissionData.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                        admissionData.status === 'accepted' ? 'bg-green-100 text-green-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
-                        {admissionData.status}
-                      </span>
-                    </div>
-                    {admissionData.invite_date && (
-                      <div className="flex justify-between">
-                        <span className="font-semibold">Invitation Date:</span>
-                        <span>{new Date(admissionData.invite_date).toLocaleDateString()}</span>
-                      </div>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className={`px-3 py-1 rounded-full text-sm ${
+                      invite.status === 'pending' 
+                        ? 'bg-yellow-100 text-yellow-800' 
+                        : invite.status === 'accepted'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {invite.status.charAt(0).toUpperCase() + invite.status.slice(1)}
+                    </span>
+                    {invite.status === 'pending' && (
+                      <button
+                        onClick={() => handleAcceptInvite(invite.id)}
+                        className="mt-2 bg-[#4D44B5] text-white px-4 py-2 rounded hover:bg-[#3a32a0] transition-colors"
+                      >
+                        Accept
+                      </button>
                     )}
                   </div>
-                )}
-
-                <div className="pt-6">
-                  <button
-                    onClick={handleAcceptAdmission}
-                    disabled={loading || (admissionData && admissionData.status === 'accepted')}
-                    className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                      loading || (admissionData && admissionData.status === 'accepted')
-                        ? 'bg-gray-400 cursor-not-allowed'
-                        : 'bg-indigo-600 hover:bg-indigo-700'
-                    }`}
-                  >
-                    {loading ? 'Processing...' : 'Accept Admission'}
-                  </button>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
 };
 
 export default Admission;
-

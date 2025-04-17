@@ -139,7 +139,7 @@ const Dashboard = () => {
               {/* Students Link */}
               <li>
                 <Link
-                  to="/students"
+                  to="/student"
                   className="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors hover:bg-white/10"
                 >
                   <img
