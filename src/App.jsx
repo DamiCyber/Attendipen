@@ -8,7 +8,7 @@ import Student from './components/Student'
 import Setting from './components/Setting'
 import AddTeachers from './components/AddTeachers'
 import AddStudents from './components/AddStudents'
-import SchoolAssign from './components/SchoolAssign'
+import AssignTeacher from './components/AssignTeacher'
 import ListofClass from "./components/ListofClass"
 import ViewAttendance from './components/ViewAttendance'
 import ParentDash from './components/ParentDash'
@@ -34,7 +34,7 @@ import StudentProfile from './components/StudentProfile'
 import Admission from './components/Admission'
 import AssignSubjectToTeacher from './components/AssignSubjectToTeacher'
 import AssignSubjectToStudent from './components/AssignSubjectToStudent'
-import ViewResult from './components/viewResult'
+import ViewResult from './components/ViewResult'
 import TeacherProfileEdit from './components/TeacherProfileEdit'
 import ParentProfileEdit from './components/ParentProfileEdit'
 import ParentProfileDetails from './components/parentProfileDetails'
@@ -56,7 +56,7 @@ const App = () => {
         {/* Teacher Management Routes */}
         <Route path="/teachers" element={<Teachers />} />
         <Route path="/teachers/add" element={<AddTeachers />} />
-        <Route path="/teachers/assign" element={<SchoolAssign />} />
+        <Route path="/teachers/assign" element={<AssignTeacher />} />
         <Route path="/teachers/profile/edit" element={<TeacherProfileEdit />} />
         <Route path="/teachers/profile/details" element={<TeachersProfileDetails />} />
         <Route path="/teachers/upload-picture" element={<PictureUploadForTeacher />} />
