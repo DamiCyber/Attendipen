@@ -29,7 +29,7 @@ import InvitationPage from './components/InvitationPage'
 import ParentView from './components/ParentView'
 import ResultUpload from './components/ResultUpload'
 import PictureUploadForTeacher from './components/PictureUploadForTeacher'
-import UploadStudentPic from './components/UploadStudentPic'
+import UploadStudentpic from './components/UploadStudentpic'
 import StudentProfile from './components/StudentProfile'
 import Admission from './components/Admission'
 import AssignSubjectToTeacher from './components/AssignSubjectToTeacher'
@@ -68,7 +68,7 @@ const App = () => {
         <Route path="/students/no-student/:classId" element={<NoStudent />} />
         <Route path="/students/profile/:studentId" element={<StudentProfile />} />
         <Route path="/students/admission/:inviteId" element={<Admission />} />
-        <Route path="/students/upload-picture/:studentId" element={<UploadStudentPic />} />
+        <Route path="/students/upload-picture/:studentId" element={<UploadStudentpic />} />
 
         {/* Class Management Routes */}
         <Route path="/classroom/create" element={<CreateClass />} />
