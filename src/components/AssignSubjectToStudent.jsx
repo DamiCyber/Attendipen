@@ -4,13 +4,13 @@ import * as yup from 'yup';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
-import "../assets/style/profile.css";
 
 const AssignSubjectToStudent = () => {
   const navigate = useNavigate();
   const [subjects, setSubjects] = useState([]);
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [unassignLoading, setUnassignLoading] = useState(false);
 
   const BASE_URL = "https://attendipen-d65abecaffe3.herokuapp.com";
 
@@ -116,6 +116,49 @@ const AssignSubjectToStudent = () => {
     },
   });
 
+  const handleUnassignStudent = async () => {
+    try {
+      setUnassignLoading(true);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+
+      const response = await axios.delete(
+        `${BASE_URL}/subjects/unassign_student`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          data: {
+            subject_class_id: parseInt(formik.values.subject_class_id),
+            student_id: parseInt(formik.values.student_id)
+          }
+        }
+      );
+
+      if (response.status === 200) {
+        Swal.fire({
+          title: "Success",
+          text: "Student unassigned from subject successfully",
+          icon: "success",
+        });
+        formik.resetForm();
+      }
+
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: error.response?.data?.message || "Failed to unassign student from subject",
+        icon: "error",
+      });
+    } finally {
+      setUnassignLoading(false);
+    }
+  };
+
   return (
     <div className="flex h-screen bg-[#F9F9F9]">
       {/* Sidebar */}
@@ -184,9 +227,19 @@ const AssignSubjectToStudent = () => {
                 )}
               </div>
 
-              <button type="submit" className="submit-btn" disabled={loading}>
-                {loading ? "Processing..." : "Register Student"}
-              </button>
+              <div className="button-group">
+                <button type="submit" className="submit-btn" disabled={loading}>
+                  {loading ? "Processing..." : "Register Student"}
+                </button>
+                <button 
+                  type="button" 
+                  className="unassign-btn" 
+                  onClick={handleUnassignStudent}
+                  disabled={unassignLoading || !formik.values.subject_class_id || !formik.values.student_id}
+                >
+                  {unassignLoading ? "Processing..." : "Unassign Student"}
+                </button>
+              </div>
             </form>
           </div>
         </div>

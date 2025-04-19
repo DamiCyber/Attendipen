@@ -1,5 +1,4 @@
-import React from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom';
 import Login from './components/Login'
 import Dashboard from './components/Dashboard'
 import Loader from './components/Loader'
@@ -18,11 +17,10 @@ import ViewAllAttendance from './components/ViewAllAttendance'
 import Mark from './components/Mark'
 import AssignStudent from './components/AssignStudent'
 import NoStudent from './components/NoStudent'
-import ProfileEdit from './components/ProfileEdit'
 import SchoolViewAllAttendance from './components/SchoolViewAllAttendance'
 import ListOfParents from './components/ListOfParents'
 import CreateClass from './components/CreateClass'
-import MyProfile from './components/MyProfile'
+import TeachersProfileDetails from './components/TeachersProfileDetails'
 import AddSubject from './components/AddSubject'
 import AssignSubjectToClass from './components/AssignSubjectToClass'
 import SubjectList from './components/SubjectList'
@@ -30,10 +28,16 @@ import SchoolEdit from './components/SchoolEdit'
 import InvitationPage from './components/InvitationPage'
 import ParentView from './components/ParentView'
 import ResultUpload from './components/ResultUpload'
+import PictureUploadForTeacher from './components/PictureUploadForTeacher'
+import UploadStudentPic from './components/UploadStudentPic'
 import StudentProfile from './components/StudentProfile'
 import Admission from './components/Admission'
 import AssignSubjectToTeacher from './components/AssignSubjectToTeacher'
 import AssignSubjectToStudent from './components/AssignSubjectToStudent'
+import ViewResult from './components/viewResult'
+import TeacherProfileEdit from './components/TeacherProfileEdit'
+import ParentProfileEdit from './components/ParentProfileEdit'
+import ParentProfileDetails from './components/parentProfileDetails'
 
 const App = () => {
   return (
@@ -42,61 +46,63 @@ const App = () => {
         {/* Authentication Routes */}
         <Route path="/" element={<Loader />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/Register" element={<Register />} />
+        <Route path="/register" element={<Register />} />
 
         {/* Dashboard Routes */}
-        <Route path="/Dashboard" element={<Dashboard />} />
-        <Route path="/TeachersDashboard" element={<TeachersDashboard />} />
-        <Route path="/Parent" element={<ParentDash />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/teachers-dashboard" element={<TeachersDashboard />} />
+        <Route path="/parent-dashboard" element={<ParentDash />} />
 
         {/* Teacher Management Routes */}
-        <Route path="/Teachers" element={<Teachers />} />
-        <Route path="/sendInviteToTeachers" element={<AddTeachers />} />
-        <Route path="/AssignTeacher" element={<SchoolAssign />} />
+        <Route path="/teachers" element={<Teachers />} />
+        <Route path="/teachers/add" element={<AddTeachers />} />
+        <Route path="/teachers/assign" element={<SchoolAssign />} />
+        <Route path="/teachers/profile/edit" element={<TeacherProfileEdit />} />
+        <Route path="/teachers/profile/details" element={<TeachersProfileDetails />} />
+        <Route path="/teachers/upload-picture" element={<PictureUploadForTeacher />} />
 
         {/* Student Management Routes */}
-        <Route path="/Student" element={<Student />} />
-        <Route path="/AddStudent" element={<AddStudents />} />
-        <Route path="/AssignStudents" element={<AssignStudent />} />
-        <Route path="/class/:classId/NoStudent" element={<NoStudent />} />
-        <Route path="/student/profile/:studentId" element={<StudentProfile />} />
+        <Route path="/students" element={<Student />} />
+        <Route path="/students/add" element={<AddStudents />} />
+        <Route path="/students/assign" element={<AssignStudent />} />
+        <Route path="/students/no-student/:classId" element={<NoStudent />} />
+        <Route path="/students/profile/:studentId" element={<StudentProfile />} />
         <Route path="/students/admission/:inviteId" element={<Admission />} />
+        <Route path="/students/upload-picture/:studentId" element={<UploadStudentPic />} />
 
         {/* Class Management Routes */}
-        <Route path="/CreateClass" element={<CreateClass />} />
-        <Route path="/List" element={<ListofClass />} />
+        <Route path="/classroom/create" element={<CreateClass />} />
+        <Route path="/classroom/list" element={<ListofClass />} />
 
         {/* Subject Management Routes */}
-        <Route path="/CreateSubject" element={<AddSubject />} />
-        <Route path="/SubjectList" element={<SubjectList />} />
-        <Route path="/AssignSubjectToClass" element={<AssignSubjectToClass />} />
-        <Route path="/assign-subject/:subjectId" element={<AssignSubjectToClass />} />
-        <Route path="/AssignSubjectToTeacher" element={<AssignSubjectToTeacher />} />
-        <Route path="/AssignSubjectToStudent" element={<AssignSubjectToStudent />} />
+        <Route path="/subjects/create" element={<AddSubject />} />
+        <Route path="/subjects/list" element={<SubjectList />} />
+        <Route path="/subjects/assign-to-class" element={<AssignSubjectToClass />} />
+        <Route path="/subjects/assign-to-teacher" element={<AssignSubjectToTeacher />} />
+        <Route path="/subjects/assign-to-student" element={<AssignSubjectToStudent />} />
 
         {/* Attendance Routes */}
-        <Route path="/View" element={<ViewAttendance />} />
-        <Route path="/Mark" element={<Mark />} />
-        <Route path="/ViewAll/:schoolId" element={<ViewAllAttendance />} />
-        <Route path="/Attendance-details" element={<SchoolViewAllAttendance />} />
+        <Route path="/attendance/view" element={<ViewAttendance />} />
+        <Route path="/attendance/mark" element={<Mark />} />
+        <Route path="/attendance/view-all/:schoolId" element={<ViewAllAttendance />} />
+        <Route path="/attendance/details" element={<SchoolViewAllAttendance />} />
 
         {/* Parent Routes */}
-        <Route path="/ListOfParent" element={<ListOfParents />} />
-        <Route path="/parent/view/:studentId" element={<ParentView />} />
-
-        {/* Profile Routes */}
-        <Route path="/ProfileEdit" element={<ProfileEdit />} />
-        <Route path="/MyProfile" element={<MyProfile />} />
+        <Route path="/parents/list" element={<ListOfParents />} />
+        <Route path="/parents/view/:studentId" element={<ParentView />} />
+        <Route path="/parents/profile/edit" element={<ParentProfileEdit />} />
+        <Route path="/parents/profile/details" element={<ParentProfileDetails />} />
 
         {/* School Management Routes */}
-        <Route path="/SchoolEdit" element={<SchoolEdit />} />
-        <Route path="/Invitation" element={<InvitationPage />} />
+        <Route path="/school/edit" element={<SchoolEdit />} />
+        <Route path="/school/invitation" element={<InvitationPage />} />
 
         {/* Result Management Routes */}
-        <Route path="/ResultUpload" element={<ResultUpload />} />
+        <Route path="/results/upload" element={<ResultUpload />} />
+        <Route path="/results/view" element={<ViewResult />} />
 
-        {/* Settings Routes */}    
-        <Route path="/attendance" element={<Setting />} />
+        {/* Settings Route */}
+        <Route path="/settings" element={<Setting />} />
       </Routes>
     </>
   )

@@ -125,7 +125,7 @@ height: 100vh;
   }
   @media (max-width: 425px) {
     body {
-      background-color: #152259;
+    
       color: white;
     }
     .loader h1 {

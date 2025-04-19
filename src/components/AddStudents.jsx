@@ -4,15 +4,7 @@ import { useFormik } from "formik";
 import * as yup from "yup";
 import Swal from "sweetalert2";
 import axios from "axios";
-import "../assets/style/addstudent.css";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+
 
 const AddStudents = () => {
   const navigate = useNavigate();
@@ -367,34 +359,21 @@ const AddStudents = () => {
               </svg>
             </button>
             <div className="flex items-center gap-4">
-              <div>
-                <p className="font-medium">{user?.name || "Joshua N."}</p>
-                <p className="text-sm text-gray-500">Admin</p>
-              </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger>
-                  <img
-                    src={user?.profile_picture || "https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281722/bell_muudfk.svg"}
-                    alt="profile"
-                    className="w-10 h-10 rounded-full"
+              <div className="user">
+                <div className="profile-picture">
+                  <img 
+                    src={user?.profile_picture || "https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281722/bell_muudfk.svg"} 
+                    alt="profile" 
+                    onError={(e) => {
+                      e.target.src = "https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281722/bell_muudfk.svg";
+                    }}
                   />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="allProfile">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <Link to="/profile">Profile</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link to="/login" onClick={() => {
-                      localStorage.removeItem("token");
-                      localStorage.removeItem("user");
-                    }}>
-                      Logout
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                </div>
+                <div className="user-info">
+                  <p className="welcome-message">{user?.name || "Joshua N."}</p>
+                  <h5>Admin</h5>
+                </div>
+              </div>
             </div>
           </div>
         </header>

@@ -19,7 +19,7 @@ const MyProfile = () => {
           setProfile(localData);
           setLoading(false);
         }
-
+        // /teachers/all?type=profile_picture"
         // Then fetch from API to ensure we have the latest data
         console.log('Fetching profile data from API...');
         const token = localStorage.getItem('token');
@@ -106,21 +106,7 @@ const MyProfile = () => {
             <p className="mt-1 capitalize">{profile.gender || "Not specified"}</p>
           </div>
 
-          <div className="p-4 bg-gray-50 rounded-lg">
-            <label className="block font-medium text-gray-700">Phone Number</label>
-            <p className="mt-1">{profile.phone_number || "Not provided"}</p>
-          </div>
-
-          <div className="p-4 bg-gray-50 rounded-lg md:col-span-2">
-            <label className="block font-medium text-gray-700">Address</label>
-            <p className="mt-1">{profile.address || "Not provided"}</p>
-          </div>
-
-          <div className="p-4 bg-gray-50 rounded-lg md:col-span-2">
-            <label className="block font-medium text-gray-700">About</label>
-            <p className="mt-1">{profile.about || "Not provided"}</p>
-          </div>
-
+        
           {profile.updatedAt && (
             <div className="p-4 bg-gray-50 rounded-lg md:col-span-2">
               <label className="block font-medium text-gray-700">Last Updated</label>

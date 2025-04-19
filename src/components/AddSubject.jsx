@@ -4,7 +4,7 @@ import * as yup from 'yup';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
-import "../assets/style/profile.css";
+
 
 const BASE_URL = "https://attendipen-d65abecaffe3.herokuapp.com";
 

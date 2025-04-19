@@ -76,30 +76,20 @@ const ViewAttendance = () => {
               <p className="font-medium">{user?.name || "Loading..."}</p>
               <p className="text-sm text-gray-500">Admin</p>
             </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger>
+           
                 <img
                   src={user?.profile_picture || "https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281722/bell_muudfk.svg"}
                   alt="profile"
                   className="w-10 h-10 rounded-full"
                 />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="allProfile">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Link to="/profile">Profile</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
+             
                   <Link to="/login" onClick={() => {
                     localStorage.removeItem("token");
                     localStorage.removeItem("user");
                   }}>
                     Logout
                   </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+             
           </div>
         </div>
       </header>

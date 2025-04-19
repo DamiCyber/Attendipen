@@ -1,15 +1,37 @@
 import React, { useEffect, useState } from 'react'
-import "../assets/style/teacher.css";
 import { Link } from "react-router-dom";
 import axios from 'axios';
+import "../assets/style/teacher.css";
 import { fetchUserData } from '../utils/userUtils';
 
-
 const Teachers = () => {
-  const BASE_URL = "https://attendipen-d65abecaffe3.herokuapp.com/teachers/all";
+  const BASE_URL = "https://attendipen-d65abecaffe3.herokuapp.com";
   const [teachers, setTeachers] = useState([]);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isAttendanceOpen, setIsAttendanceOpen] = useState(false);
+  const [isClassroomOpen, setIsClassroomOpen] = useState(false);
+  const [isAssignOpen, setIsAssignOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [userData, setUserData] = useState(null);
+  const [profilePictures, setProfilePictures] = useState({});
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredTeachers, setFilteredTeachers] = useState([]);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const toggleAttendance = () => {
+    setIsAttendanceOpen(!isAttendanceOpen);
+  };
+
+  const toggleClassroom = () => {
+    setIsClassroomOpen(!isClassroomOpen);
+  };
+
+  const toggleAssign = () => {
+    setIsAssignOpen(!isAssignOpen);
+  };
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -24,7 +46,8 @@ const Teachers = () => {
   }, []);
 
   useEffect(() => {
-    axios.get(BASE_URL, {
+    // Fetch teachers list
+    axios.get(`${BASE_URL}/teachers/all`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
         "Content-Type": "application/json",
@@ -32,116 +55,264 @@ const Teachers = () => {
     })
       .then((res) => {
         setTeachers(res.data);
+        setFilteredTeachers(res.data); // Initialize filtered teachers
+        // Fetch profile pictures for each teacher
+        res.data.forEach(teacher => {
+          fetchProfilePicture(teacher.id);
+        });
       })
       .catch((error) => {
-        console.error('Error fetching data: ', error);
+        console.error('Error fetching teachers: ', error);
       });
   }, []);
 
+  // Add search functionality
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setFilteredTeachers(teachers);
+    } else {
+      const filtered = teachers.filter(teacher => 
+        teacher.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        teacher.id.toString().includes(searchQuery) ||
+        (teacher.email && teacher.email.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+      setFilteredTeachers(filtered);
+    }
+  }, [searchQuery, teachers]);
+
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const fetchProfilePicture = async (teacherId) => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/teachers/${teacherId}?type=profile_picture`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          responseType: 'blob'
+        }
+      );
+
+      // Convert blob to URL
+      const imageUrl = URL.createObjectURL(response.data);
+      setProfilePictures(prev => ({
+        ...prev,
+        [teacherId]: imageUrl
+      }));
+    } catch (error) {
+      console.error(`Error fetching profile picture for teacher ${teacherId}:`, error);
+    }
+  };
+
   return (
-    <div>
-      <div className="flex h-screen bg-[#F9F9F9]">
-        {/* Sidebar */}
-     
-
-        {/* Main Content */}
-        <div className="flex-1 p-8 mt-7 main-content">
-          {/* Header */}
-          <header className="flex items-center justify-between mb-8 ">
-            <div className="description">
-              <h1 className="text-2xl font-semibold text-[#4D44B5]">Teacher</h1>
-            </div>
-
-
-            <div className="flex items-center gap-9 control ">
-              <button className="p-2 hover:bg-gray-100 rounded-lg bg-white control-btn" width="38" height="38">
-                <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281722/bell_muudfk.svg" alt="notifications" className="w-6 h-6" />
-              </button>
-              <button className="p-2 hover:bg-gray-100 rounded-lg bg-white control-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 32 32" fill="none">
-                  <path d="M12.2629 2.66669L11.4166 6.46617C10.9352 6.6978 10.4751 6.9646 10.0338 7.26565L6.32023 6.09637L2.58325 12.5703L5.39836 15.1485C5.28837 15.9648 5.33819 16.3672 5.39836 16.8516L2.58325 19.4297L6.32023 25.9037L10.0338 24.7344C10.4751 25.0354 10.9352 25.3022 11.4166 25.5339L12.2629 29.3334H19.7369L20.5833 25.5339C21.0646 25.3022 21.5248 25.0354 21.9661 24.7344L25.6796 25.9037L29.4166 19.4297L26.6015 16.8516C26.6245 16.5682 26.6663 16.2846 26.6666 16C26.6677 15.7069 26.6215 15.4108 26.6015 15.1485L29.4166 12.5703L25.6796 6.09637L21.9661 7.26565C21.5248 6.9646 21.0646 6.6978 20.5833 6.46617L19.7369 2.66669H12.2629ZM14.4036 5.33335H17.5963L18.2551 8.29169L18.9166 8.5521C19.6648 8.84513 20.3643 9.24847 20.9921 9.75002L21.5494 10.1927L24.44 9.28387L26.0364 12.0495L23.802 14.099L23.9088 14.8021C24.0344 15.5797 24.01 16.4746 23.9088 17.1979L23.802 17.9011L26.0364 19.9505L24.44 22.7162L21.5494 21.8073L20.9921 22.25C20.3643 22.7516 19.6648 23.1549 18.9166 23.4479L18.2551 23.7084L17.5963 26.6667H14.4036L13.7447 23.7084L13.0833 23.4479C12.335 23.1549 11.6356 22.7516 11.0077 22.25L10.4504 21.8073L7.55981 22.7162L5.96346 19.9505L8.19783 17.9011L8.09106 17.1979C7.96083 16.4047 7.98083 15.4967 8.09106 14.8021L8.19783 14.099L5.96346 12.0495L7.55981 9.28387L10.4504 10.1927L11.0077 9.75002C11.6356 9.24847 12.335 8.84513 13.0833 8.5521L13.7447 8.29169L14.4036 5.33335ZM15.9999 10.6667C13.0702 10.6667 10.6666 13.0703 10.6666 16C10.6666 18.9297 13.0702 21.3334 15.9999 21.3334C18.9296 21.3334 21.3333 18.9297 21.3333 16C21.3333 13.0703 18.9296 10.6667 15.9999 10.6667ZM15.9999 13.3334C17.4885 13.3334 18.6666 14.5115 18.6666 16C18.6666 17.4886 17.4885 18.6667 15.9999 18.6667C14.5114 18.6667 13.3333 17.4886 13.3333 16C13.3333 14.5115 14.5114 13.3334 15.9999 13.3334Z" fill="#A098AE" />
-                </svg>
-              </button>
-              <div className="flex items-center gap-4">
-                <div>
-                  <p className="font-medium">{user?.name || "Loading..."}</p>
-                  <p className="text-sm text-gray-500">Admin</p>
-                </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger>
-                    <img
-                      src={user?.profile_picture || "https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281722/bell_muudfk.svg"}
-                      alt="profile"
-                      className="w-10 h-10 rounded-full"
-                    />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="allProfile">
-                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <Link to="/profile">Profile</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Link to="/login" onClick={() => {
-                        localStorage.removeItem("token");
-                        localStorage.removeItem("user");
-                      }}>
-                        Logout
-                      </Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+    <div className="dashboard-container">
+     <div className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
+        <div className="sidebar-header">
+          <div className="logo">logo</div>
+          <button className="toggle-btn" onClick={toggleSidebar}>
+            {isSidebarOpen ? '←' : '→'}
+          </button>
+        </div>
+        <nav>
+          <ul className="nav-links">
+            <li>
+              <Link to="/dashboard" className="nav-link">
+                <span className="icon">🏠</span>
+                {isSidebarOpen && <span className="text">Dashboard</span>}
+              </Link>
+            </li>
+            <li>
+              <Link to="/teachers" className="nav-link">
+                <span className="icon">👨‍🏫</span>
+                {isSidebarOpen && <span className="text">Teachers</span>}
+              </Link>
+            </li>
+            <li>
+              <Link to="/students" className="nav-link">
+                <span className="icon">👨‍🎓</span>
+                {isSidebarOpen && <span className="text">Students</span>}
+              </Link>
+            </li>
+            <li className="dropdown-container">
+              <div className="nav-link dropdown-header" onClick={toggleAttendance}>
+                <span className="icon">📝</span>
+                {isSidebarOpen && (
+                  <>
+                    <span className="text">Attendance</span>
+                    <span className={`dropdown-arrow ${isAttendanceOpen ? 'open' : ''}`}>▼</span>
+                  </>
+                )}
               </div>
-            </div>
-          </header>
-
-          <div className="nav-teacher">
-            <button className="absolute left-4 -translate-y-1/2 top-1/2 p-1">
-              <svg
-                width="20"
-                height="20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                role="img"
-                aria-labelledby="search"
-                className="w-5 h-5 text-gray-700"
-              >
-
-              </svg>
-            </button>
-            <input
-              className="input rounded-full px-12 py-4 border-2 border-transparent focus:outline-none focus:border-blue-500 placeholder-gray-400 transition-all duration-300 shadow-md w-[300px] searchall"
-              placeholder="Search..."
-              required=""
-              type="text"
-            />
-            <div className="controllers">
-              <div className="newest-button">
-
-                <Link to="/sendInviteToTeachers" >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="17" viewBox="0 0 18 17" fill="none">
-                    <path d="M6.84703 10.6647H0.882324V6.42941H6.84703V0.5H11.0823V6.42941H17.1176V10.6647H11.0823V16.6647H6.84703V10.6647Z" fill="white" />
-                  </svg>
-                  New Teacher
-                </Link>
+              {isSidebarOpen && isAttendanceOpen && (
+                <ul className="dropdown-menu">
+                  <li>
+                    <Link to="/attendance/view" className="dropdown-link">
+                      <span className="icon">👨‍🎓</span>
+                      <span className="text">View Attendance</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/settings" className="dropdown-link">
+                      <span className="icon">✏️</span>
+                      <span className="text"> Attendance Setting</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/attendance/view" className="dropdown-link">
+                      <span className="icon">📊</span>
+                      <span className="text">View Attendance</span>
+                    </Link>
+                  </li>
+                </ul>
+              )}
+            </li>
+            <li className="dropdown-container">
+              <div className="nav-link dropdown-header" onClick={toggleClassroom}>
+                <span className="icon">🏫</span>
+                {isSidebarOpen && (
+                  <>
+                    <span className="text">Classroom</span>
+                    <span className={`dropdown-arrow ${isClassroomOpen ? 'open' : ''}`}>▼</span>
+                  </>
+                )}
               </div>
-
+              {isSidebarOpen && isClassroomOpen && (
+                <ul className="dropdown-menu">
+                  <li>
+                    <Link to="/classroom/create" className="dropdown-link">
+                      <span className="icon">➕</span>
+                      <span className="text">Create Class</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/classroom/list" className="dropdown-link">
+                      <span className="icon">📋</span>
+                      <span className="text">Class List</span>
+                    </Link>
+                  </li>
+                </ul>
+              )}
+            </li>
+            <li className="dropdown-container">
+              <div className="nav-link dropdown-header" onClick={toggleAssign}>
+                <span className="icon">📚</span>
+                {isSidebarOpen && (
+                  <>
+                    <span className="text">Assign</span>
+                    <span className={`dropdown-arrow ${isAssignOpen ? 'open' : ''}`}>▼</span>
+                  </>
+                )}
+              </div>
+              {isSidebarOpen && isAssignOpen && (
+                <ul className="dropdown-menu">
+                  <li>
+                    <Link to="/teachers/assign" className="dropdown-link">
+                      <span className="icon">👨‍🏫</span>
+                      <span className="text">Assign Teacher</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/students/assign" className="dropdown-link">
+                      <span className="icon">👨‍🎓</span>
+                      <span className="text">Assign Student</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/subjects/assign-to-class" className="dropdown-link">
+                      <span className="icon">📖</span>
+                      <span className="text">Assign Subject</span>
+                    </Link>
+                  </li>
+                </ul>
+              )}
+            </li>
+            <li>
+              <Link to="/parents/list" className="nav-link">
+                <span className="icon">👪</span>
+                {isSidebarOpen && <span className="text">Parents</span>}
+              </Link>
+            </li>
+            <li>
+              <Link to="/" className="nav-link">
+                <span className="icon">⚙️</span>
+                {isSidebarOpen && <span className="text">Settings</span>}
+              </Link>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      <div className={`main-content ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+        <div className="header">
+          <div className="header-left">
+            <h1 className="dashboard-title">Teacher</h1>
+          </div>
+         
+          <div className="user">
+            <div className="profile-picture">
+              <img
+                src={userData?.profile_picture || ""}
+                alt="Profile"
+                onError={(e) => {
+                  e.target.src = "";
+                }}
+              />
+            </div>
+            <div className="user-info">
+              <h4 className="welcome-message">{user?.name || "Joshua N."}</h4>
+              <h5>Admin</h5>
             </div>
           </div>
+        </div>
+        <div className="searadd">
+          <form className="search-form">
+            <button type="button">
+              <svg width="17" height="16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="search">
+                <path d="M7.667 12.667A5.333 5.333 0 107.667 2a5.333 5.333 0 000 10.667zM14.334 14l-2.9-2.9" stroke="currentColor" strokeWidth="1.333" strokeLinecap="round" strokeLinejoin="round"></path>
+              </svg>
+            </button>
+            <input 
+              className="search-input" 
+              placeholder="Search teachers..." 
+              type="text" 
+              value={searchQuery}
+              onChange={handleSearch}
+            />
+            <button className="reset" type="reset" onClick={() => setSearchQuery("")}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </form>
+          <div className="add-teacher">
+            <Link to="/teachers/add">Add Teacher</Link>
+          </div>
+        </div>
+        <div className="content-body">
           <div className="Api-map-out rounded-lg shadow-md p-6">
-            <div className="identity flex justify-between items-center mb-4 p-4 bg-gray-50 rounded-lg">
-              <h2 className="text-lg font-semibold text-gray-700 w-2/3">Name</h2>
-              <h2 className="text-lg font-semibold text-gray-700 w-1/3">Email</h2>
-              <h2 className="text-lg font-semibold text-gray-700 w-1/3">Gender</h2>
+            <div className="identity">
+              <h4>Profile</h4>
+              <h4>Name</h4>
+              <h4>Email</h4>
+              <h4>Gender</h4>
             </div>
 
-            <div className="teachers-joint" style={{ overflowY: 'scroll', marginBottom: '8px !important' }}>
-              {teachers.map((teacher) => (
+            <div className="teachers-joint">
+              {filteredTeachers.map((teacher) => (
                 <div key={teacher.id}
-                  className="teacher-card cover-teacher mb-4 flex justify-between items-center p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow duration-200">
-                  <div className="w-2/3 text-gray-700">{teacher.name}</div>
-                  <div className="w-1/3 text-gray-600">{teacher.email}</div>
-                  <div className="w-1/3 text-gray-600">{teacher.gender}</div>
+                  className="teacher-card">
+                  <div className="teacher-profile">
+                    <img
+                      src={profilePictures[teacher.id] || "https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281722/bell_muudfk.svg"}
+                      alt={`${teacher.name}'s profile`}
+                      className="teacher-image"
+                    />
+                  </div>
+                  <div className="teacher-name">{teacher.name}</div>
+                  <div className="teacher-email">{teacher.email}</div>
+                  <div className="teacher-gender">{teacher.gender}</div>
                 </div>
               ))}
             </div>
@@ -149,8 +320,6 @@ const Teachers = () => {
         </div>
       </div>
     </div>
-
-
   )
 }
 

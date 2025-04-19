@@ -332,6 +332,23 @@ def test_fetch_student():
         f.write(response.content)"""
     
     print_response(response)
+def test_fetch_student():
+    url = f"{BASE_URL}/students/1?type=profile_picture" #[ object || count || profile_picture ]
+    headers = {"Authorization": f"Bearer {tokens['parent']}"}
+    response = requests.get(url, headers=headers)
+    """with open("pp.jpeg", "wb") as f: #to write profile picture
+        f.write(response.content)"""
+    
+    print_response(response)
+
+def test_fetch_teachers():
+    url = f"{BASE_URL}/teachers/1?type=profile_picture" #[ object || count || profile_picture ]
+    headers = {"Authorization": f"Bearer {tokens['school']}"}
+    response = requests.get(url, headers=headers)
+    """with open("pp.jpeg", "wb") as f: #to write profile picture
+        f.write(response.content)"""
+    
+    print_response(response)
 
 
 def test_edit_student_profile_picture():
@@ -343,6 +360,15 @@ def test_edit_student_profile_picture():
     response = requests.put(url, headers=headers, files=files)
     print_response(response)
 
+
+def test_fetch_parents():
+    url = f"{BASE_URL}/parents/1?type=profile_file" #[ object || count || profile_picture ]
+    headers = {"Authorization": f"Bearer {tokens['school']}"}
+    response = requests.get(url, headers=headers)
+    """with open("pp.jpeg", "wb") as f: #to write profile picture
+        f.write(response.content)"""
+        
+    print_response(response)
 
 def test_fetch_parents():
     url = f"{BASE_URL}/parents/all?type=count" #[ object || count || profile_picture ]

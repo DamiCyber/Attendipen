@@ -149,8 +149,8 @@ const ResultUpload = () => {
             >
               <option value="">Select a subject</option>
               {subjects.map((subject) => (
-                <option key={subject.id} value={subject.id}>
-                  {subject.name}
+                <option key={subject.subject_class_id} value={subject.subject_class_id}>
+                  {subject.subject_name} - {subject.class_name}
                 </option>
               ))}
             </select>

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import "../assets/style/addstudent.css";
 import { Link } from "react-router-dom";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";

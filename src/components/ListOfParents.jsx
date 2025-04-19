@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
-
 const ListOfParents = () => {
     const [parents, setParents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [user, setUser] = useState(null);
+    const [profilePictures, setProfilePictures] = useState({});
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
@@ -21,6 +21,28 @@ const ListOfParents = () => {
         }
     }, []);
 
+    const fetchProfilePicture = async (parentId) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get(
+                `https://attendipen-d65abecaffe3.herokuapp.com/parents/${parentId}?type=profile_picture`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    responseType: 'blob'
+                }
+            );
+            const imageUrl = URL.createObjectURL(response.data);
+            setProfilePictures(prev => ({
+                ...prev,
+                [parentId]: imageUrl
+            }));
+        } catch (err) {
+            console.error(`Error fetching profile picture for parent ${parentId}:`, err);
+        }
+    };
+
     useEffect(() => {
         const fetchParents = async () => {
             try {
@@ -31,12 +53,19 @@ const ListOfParents = () => {
                     }
                 });
 
-                // Check if response.data is an object and convert it to array if needed
                 const parentsData = Array.isArray(response.data)
                     ? response.data
                     : [response.data];
 
                 setParents(parentsData);
+                
+                // Fetch profile pictures for each parent
+                parentsData.forEach(parent => {
+                    if (parent.id) {
+                        fetchProfilePicture(parent.id);
+                    }
+                });
+
                 setLoading(false);
             } catch (err) {
                 setError('Failed to fetch parents');
@@ -46,15 +75,18 @@ const ListOfParents = () => {
         };
 
         fetchParents();
+
+        // Cleanup function to revoke object URLs
+        return () => {
+            Object.values(profilePictures).forEach(url => {
+                URL.revokeObjectURL(url);
+            });
+        };
     }, []);
 
     if (loading) {
         return (
             <div className="flex h-screen bg-[#F9F9F9]">
-                {/* Sidebar */}
-               
-
-                {/* Main Content */}
                 <div className="flex-1 p-8 mt-7 main-content">
                     <div className="flex items-center justify-center h-full">
                         <div className="flex flex-col items-center gap-4">
@@ -66,6 +98,7 @@ const ListOfParents = () => {
             </div>
         );
     }
+
     if (error) return <div className="error">{error}</div>;
     if (!parents || parents.length === 0) return <div className="error">No parents found</div>;
 
@@ -86,11 +119,10 @@ const ListOfParents = () => {
 
                     <nav className="flex-1">
                         <ul className="space-y-4">
-                            {/* Dashboard Link */}
                             <li>
                                 <Link
                                     to="/Dashboard"
-                                    className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg transition-colors hover:bg-white/15"
+                                    className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg transition-colors"
                                 >
                                     <img
                                         src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281723/home-2_wwzqrg.png"
@@ -101,7 +133,6 @@ const ListOfParents = () => {
                                 </Link>
                             </li>
 
-                            {/* Teachers Link */}
                             <li>
                                 <Link
                                     to="/Teachers"
@@ -116,7 +147,6 @@ const ListOfParents = () => {
                                 </Link>
                             </li>
 
-                            {/* Students Link */}
                             <li>
                                 <Link
                                     to="/Student"
@@ -131,131 +161,98 @@ const ListOfParents = () => {
                                 </Link>
                             </li>
 
-                            {/* Class Details Dropdown */}
-                            <li className="drop">
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors hover:bg-white/10">
-                                        <svg className="w-5 h-5" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M14 nnn33336H2.00004C1.36004 8.33336 0.833374 7.8067 0.833374 7.1667V4.95336C0.833374 4.50002 1.14669 4.04003 1.56669 3.87336L7.56669 1.47338C7.82002 1.37338 8.18006 1.37338 8.43339 1.47338L14.4334 3.87336C14.8534 4.04003 15.1667 4.50669 15.1667 4.95336V7.1667C15.1667 7.8067 14.64 8.33336 14 8.33336ZM8.00004 2.39338C7.97337 2.39338 7.94672 2.39335 7.93339 2.40001L1.94002 4.80004C1.90002 4.82004 1.83337 4.90669 1.83337 4.95336V7.1667C1.83337 7.26003 1.90671 7.33336 2.00004 7.33336H14C14.0934 7.33336 14.1667 7.26003 14.1667 7.1667V4.95336C14.1667 4.90669 14.1067 4.82004 14.0601 4.80004L8.06006 2.40001C8.04673 2.39335 8.02671 2.39338 8.00004 2.39338Z" fill="white" />
-                                            <path d="M14.6667 15.6667H1.33337C1.06004 15.6667 0.833374 15.44 0.833374 15.1667V13.1667C0.833374 12.5267 1.36004 12 2.00004 12H14C14.64 12 15.1667 12.5267 15.1667 13.1667V15.1667C15.1667 15.44 14.94 15.6667 14.6667 15.6667ZM1.83337 14.6667H14.1667V13.1667C14.1667 13.0733 14.0934 13 14 13H2.00004C1.90671 13 1.83337 13.0733 1.83337 13.1667V14.6667Z" fill="white" />
-                                            <path d="M2.66663 13C2.39329 13 2.16663 12.7733 2.16663 12.5V7.83331C2.16663 7.55998 2.39329 7.33331 2.66663 7.33331C2.93996 7.33331 3.16663 7.55998 3.16663 7.83331V12.5C3.16663 12.7733 2.93996 13 2.66663 13Z" fill="white" />
-                                            <path d="M5.33337 13C5.06004 13 4.83337 12.7733 4.83337 12.5V7.83331C4.83337 7.55998 5.06004 7.33331 5.33337 7.33331C5.60671 7.33331 5.83337 7.55998 5.83337 7.83331V12.5C5.83337 12.7733 5.60671 13 5.33337 13Z" fill="white" />
-                                            <path d="M8 13C7.72667 13 7.5 12.7733 7.5 12.5V7.83331C7.5 7.55998 7.72667 7.33331 8 7.33331C8.27333 7.33331 8.5 7.55998 8.5 7.83331V12.5C8.5 12.7733 8.27333 13 8 13Z" fill="white" />
-                                            <path d="M10.6666 13C10.3933 13 10.1666 12.7733 10.1666 12.5V7.83331C10.1666 7.55998 10.3933 7.33331 10.6666 7.33331C10.94 7.33331 11.1666 7.55998 11.1666 7.83331V12.5C11.1666 12.7733 10.94 13 10.6666 13Z" fill="white" />
-                                            <path d="M13.3334 13C13.06 13 12.8334 12.7733 12.8334 12.5V7.83331C12.8334 7.55998 13.06 7.33331 13.3334 7.33331C13.6067 7.33331 13.8334 7.55998 13.8334 7.83331V12.5C13.8334 12.7733 13.6067 13 13.3334 13Z" fill="white" />
-                                            <path d="M15.3333 15.6667H0.666626C0.393293 15.6667 0.166626 15.44 0.166626 15.1667C0.166626 14.8934 0.393293 14.6667 0.666626 14.6667H15.3333C15.6066 14.6667 15.8333 14.8934 15.8333 15.1667C15.8333 15.44 15.6066 15.6667 15.3333 15.6667Z" fill="white" />
-                                            <path d="M8 6.66669C7.17333 6.66669 6.5 5.99335 6.5 5.16669C6.5 4.34002 7.17333 3.66669 8 3.66669C8.82667 3.66669 9.5 4.34002 9.5 5.16669C9.5 5.99335 8.82667 6.66669 8 6.66669ZM8 4.66669C7.72667 4.66669 7.5 4.89335 7.5 5.16669C7.5 5.44002 7.72667 5.66669 8 5.66669C8.27333 5.66669 8.5 5.44002 8.5 5.16669C8.5 4.89335 8.27333 4.66669 8 4.66669Z" fill="white" />
-                                        </svg>
-                                        <span className="text-sm font-medium">Class Details</span>
-                                    </DropdownMenuTrigger  >
-                                    <DropdownMenuContent
-                                        side="right"
-                                        align="start"
-                                        className="w-56 h-15 px-4 bg-[#152259] text-white contentdrop"
-                                    >
-                                        <Link to="/CreateClass" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg">
-                                            <svg className="w-5 h-5" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M1.33337 9.05332V10.5C1.33337 13.8333 2.66671 15.1666 6.00004 15.1666H10C13.3334 15.1666 14.6667 13.8333 14.6667 10.5V6.49998C14.6667 3.16665 13.3334 1.83331 10 1.83331H6.00004C2.66671 1.83331 1.33337 3.16665 1.33337 6.49998" stroke="white" stroke-linecap="round" stroke-linejoin="round" />
-                                                <path d="M6.74003 7.93335H4.97337C4.55337 7.93335 4.21338 8.27332 4.21338 8.69332V12.1066H6.74003V7.93335V7.93335Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                                <path d="M8.50673 4.89996H7.49339C7.07339 4.89996 6.7334 5.23997 6.7334 5.65997V12.1H9.26007V5.65997C9.26007 5.23997 8.92673 4.89996 8.50673 4.89996Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                                <path d="M11.0334 9.06665H9.26672V12.1H11.7934V9.82666C11.7867 9.40666 11.4467 9.06665 11.0334 9.06665Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                            </svg>
-                                            <span>Create Class</span>
-                                        </Link>
-
-                                        <Link to="/List" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg">
-                                            <svg className="w-5 h-5" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M14 nnn33336H2.00004C1.36004 8.33336 0.833374 7.8067 0.833374 7.1667V4.95336C0.833374 4.50002 1.14669 4.04003 1.56669 3.87336L7.56669 1.47338C7.82002 1.37338 8.18006 1.37338 8.43339 1.47338L14.4334 3.87336C14.8534 4.04003 15.1667 4.50669 15.1667 4.95336V7.1667C15.1667 7.8067 14.64 8.33336 14 8.33336ZM8.00004 2.39338C7.97337 2.39338 7.94672 2.39335 7.93339 2.40001L1.94002 4.80004C1.90002 4.82004 1.83337 4.90669 1.83337 4.95336V7.1667C1.83337 7.26003 1.90671 7.33336 2.00004 7.33336H14C14.0934 7.33336 14.1667 7.26003 14.1667 7.1667V4.95336C14.1667 4.90669 14.1067 4.82004 14.0601 4.80004L8.06006 2.40001C8.04673 2.39335 8.02671 2.39338 8.00004 2.39338Z" fill="white" />
-                                                <path d="M14.6667 15.6667H1.33337C1.06004 15.6667 0.833374 15.44 0.833374 15.1667V13.1667C0.833374 12.5267 1.36004 12 2.00004 12H14C14.64 12 15.1667 12.5267 15.1667 13.1667V15.1667C15.1667 15.44 14.94 15.6667 14.6667 15.6667ZM1.83337 14.6667H14.1667V13.1667C14.1667 13.0733 14.0934 13 14 13H2.00004C1.90671 13 1.83337 13.0733 1.83337 13.1667V14.6667Z" fill="white" />
-                                                <path d="M2.66663 13C2.39329 13 2.16663 12.7733 2.16663 12.5V7.83331C2.16663 7.55998 2.39329 7.33331 2.66663 7.33331C2.93996 7.33331 3.16663 7.55998 3.16663 7.83331V12.5C3.16663 12.7733 2.93996 13 2.66663 13Z" fill="white" />
-                                                <path d="M5.33337 13C5.06004 13 4.83337 12.7733 4.83337 12.5V7.83331C4.83337 7.55998 5.06004 7.33331 5.33337 7.33331C5.60671 7.33331 5.83337 7.55998 5.83337 7.83331V12.5C5.83337 12.7733 5.60671 13 5.33337 13Z" fill="white" />
-                                                <path d="M8 13C7.72667 13 7.5 12.7733 7.5 12.5V7.83331C7.5 7.55998 7.72667 7.33331 8 7.33331C8.27333 7.33331 8.5 7.55998 8.5 7.83331V12.5C8.5 12.7733 8.27333 13 8 13Z" fill="white" />
-                                                <path d="M10.6666 13C10.3933 13 10.1666 12.7733 10.1666 12.5V7.83331C10.1666 7.55998 10.3933 7.33331 10.6666 7.33331C10.94 7.33331 11.1666 7.55998 11.1666 7.83331V12.5C11.1666 12.7733 10.94 13 10.6666 13Z" fill="white" />
-                                                <path d="M13.3334 13C13.06 13 12.8334 12.7733 12.8334 12.5V7.83331C12.8334 7.55998 13.06 7.33331 13.3334 7.33331C13.6067 7.33331 13.8334 7.55998 13.8334 7.83331V12.5C13.8334 12.7733 13.6067 13 13.3334 13Z" fill="white" />
-                                                <path d="M15.3333 15.6667H0.666626C0.393293 15.6667 0.166626 15.44 0.166626 15.1667C0.166626 14.8934 0.393293 14.6667 0.666626 14.6667H15.3333C15.6066 14.6667 15.8333 14.8934 15.8333 15.1667C15.8333 15.44 15.6066 15.6667 15.3333 15.6667Z" fill="white" />
-                                                <path d="M8 6.66669C7.17333 6.66669 6.5 5.99335 6.5 5.16669C6.5 4.34002 7.17333 3.66669 8 3.66669C8.82667 3.66669 9.5 4.34002 9.5 5.16669C9.5 5.99335 8.82667 6.66669 8 6.66669ZM8 4.66669C7.72667 4.66669 7.5 4.89335 7.5 5.16669C7.5 5.44002 7.72667 5.66669 8 5.66669C8.27333 5.66669 8.5 5.44002 8.5 5.16669C8.5 4.89335 8.27333 4.66669 8 4.66669Z" fill="white" />
-                                            </svg>
-                                            <span>Class List</span>
-                                        </Link>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
+                            <li>
+                                <Link
+                                    to="/CreateClass"
+                                    className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg"
+                                >
+                                    <svg className="w-5 h-5" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1.33337 9.05332V10.5C1.33337 13.8333 2.66671 15.1666 6.00004 15.1666H10C13.3334 15.1666 14.6667 13.8333 14.6667 10.5V6.49998C14.6667 3.16665 13.3334 1.83331 10 1.83331H6.00004C2.66671 1.83331 1.33337 3.16665 1.33337 6.49998" stroke="white" strokeLinecap="round" strokeLinejoin="round" />
+                                        <path d="M6.74003 7.93335H4.97337C4.55337 7.93335 4.21338 8.27332 4.21338 8.69332V12.1066H6.74003V7.93335V7.93335Z" stroke="white" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+                                        <path d="M8.50673 4.89996H7.49339C7.07339 4.89996 6.7334 5.23997 6.7334 5.65997V12.1H9.26007V5.65997C9.26007 5.23997 8.92673 4.89996 8.50673 4.89996Z" stroke="white" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+                                        <path d="M11.0334 9.06665H9.26672V12.1H11.7934V9.82666C11.7867 9.40666 11.4467 9.06665 11.0334 9.06665Z" stroke="white" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                    <span>Create Class</span>
+                                </Link>
                             </li>
 
-                            {/* Consistent spacing for other dropdowns */}
-                            <li className="mt-4 drop">
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors hover:bg-white/10">
-                                        <svg className="w-5 h-5" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M1.33337 9.05332V10.5C1.33337 13.8333 2.66671 15.1666 6.00004 15.1666H10C13.3334 15.1666 14.6667 13.8333 14.6667 10.5V6.49998C14.6667 3.16665 13.3334 1.83331 10 1.83331H6.00004C2.66671 1.83331 1.33337 3.16665 1.33337 6.49998" stroke="white" stroke-linecap="round" stroke-linejoin="round" />
-                                            <path d="M6.74003 7.93335H4.97337C4.55337 7.93335 4.21338 8.27332 4.21338 8.69332V12.1066H6.74003V7.93335V7.93335Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                            <path d="M8.50673 4.89996H7.49339C7.07339 4.89996 6.7334 5.23997 6.7334 5.65997V12.1H9.26007V5.65997C9.26007 5.23997 8.92673 4.89996 8.50673 4.89996Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                            <path d="M11.0334 9.06665H9.26672V12.1H11.7934V9.82666C11.7867 9.40666 11.4467 9.06665 11.0334 9.06665Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                        </svg>
-                                        <span className="text-sm font-medium">Attendance</span>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent
-                                        side="right"
-                                        align="start"
-                                        className="w-56 bg-[#152259] text-white contentdrop2"
-                                    >
-                                        <Link to="/Setting" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg">
-                                            <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281722/setting-2_nxazfr.svg" alt="settings" className="w-5 h-5" />
-                                            <span>Attendance Setting</span>
-                                        </Link>
-
-                                        <Link to="/view" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg">
-                                            <svg className="w-5 h-5" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M1.33337 9.05332V10.5C1.33337 13.8333 2.66671 15.1666 6.00004 15.1666H10C13.3334 15.1666 14.6667 13.8333 14.6667 10.5V6.49998C14.6667 3.16665 13.3334 1.83331 10 1.83331H6.00004C2.66671 1.83331 1.33337 3.16665 1.33337 6.49998" stroke="white" stroke-linecap="round" stroke-linejoin="round" />
-                                                <path d="M6.74003 7.93335H4.97337C4.55337 7.93335 4.21338 8.27332 4.21338 8.69332V12.1066H6.74003V7.93335V7.93335Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                                <path d="M8.50673 4.89996H7.49339C7.07339 4.89996 6.7334 5.23997 6.7334 5.65997V12.1H9.26007V5.65997C9.26007 5.23997 8.92673 4.89996 8.50673 4.89996Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                                <path d="M11.0334 9.06665H9.26672V12.1H11.7934V9.82666C11.7867 9.40666 11.4467 9.06665 11.0334 9.06665Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                            </svg>
-                                            <span>View Attendance</span>
-                                        </Link>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
+                            <li>
+                                <Link
+                                    to="/List"
+                                    className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg"
+                                >
+                                    <svg className="w-5 h-5" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M14 nnn33336H2.00004C1.36004 8.33336 0.833374 7.8067 0.833374 7.1667V4.95336C0.833374 4.50002 1.14669 4.04003 1.56669 3.87336L7.56669 1.47338C7.82002 1.37338 8.18006 1.37338 8.43339 1.47338L14.4334 3.87336C14.8534 4.04003 15.1667 4.50669 15.1667 4.95336V7.1667C15.1667 7.8067 14.64 8.33336 14 8.33336ZM8.00004 2.39338C7.97337 2.39338 7.94672 2.39335 7.93339 2.40001L1.94002 4.80004C1.90002 4.82004 1.83337 4.90669 1.83337 4.95336V7.1667C1.83337 7.26003 1.90671 7.33336 2.00004 7.33336H14C14.0934 7.33336 14.1667 7.26003 14.1667 7.1667V4.95336C14.1667 4.90669 14.1067 4.82004 14.0601 4.80004L8.06006 2.40001C8.04673 2.39335 8.02671 2.39338 8.00004 2.39338Z" fill="white" />
+                                        <path d="M14.6667 15.6667H1.33337C1.06004 15.6667 0.833374 15.44 0.833374 15.1667V13.1667C0.833374 12.5267 1.36004 12 2.00004 12H14C14.64 12 15.1667 12.5267 15.1667 13.1667V15.1667C15.1667 15.44 14.94 15.6667 14.6667 15.6667ZM1.83337 14.6667H14.1667V13.1667C14.1667 13.0733 14.0934 13 14 13H2.00004C1.90671 13 1.83337 13.0733 1.83337 13.1667V14.6667Z" fill="white" />
+                                    </svg>
+                                    <span>Class List</span>
+                                </Link>
                             </li>
 
-                            <li className="mt-4 drop">
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors hover:bg-white/10">
-                                        <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281723/teacher_mmxcpi.svg" alt="teachers" className="w-5 h-5" />
-                                        <span className="text-sm font-medium">Assign</span>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent
-                                        side="right"
-                                        align="start"
-                                        className="w-56 bg-[#152259] text-white contentdrop3"
-                                    >
-                                        <Link to="/AssignTeacher" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg">
-                                            <svg className="w-5 h-5" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M1.33337 9.05332V10.5C1.33337 13.8333 2.66671 15.1666 6.00004 15.1666H10C13.3334 15.1666 14.6667 13.8333 14.6667 10.5V6.49998C14.6667 3.16665 13.3334 1.83331 10 1.83331H6.00004C2.66671 1.83331 1.33337 3.16665 1.33337 6.49998" stroke="white" stroke-linecap="round" stroke-linejoin="round" />
-                                                <path d="M6.74003 7.93335H4.97337C4.55337 7.93335 4.21338 8.27332 4.21338 8.69332V12.1066H6.74003V7.93335V7.93335Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                                <path d="M8.50673 4.89996H7.49339C7.07339 4.89996 6.7334 5.23997 6.7334 5.65997V12.1H9.26007V5.65997C9.26007 5.23997 8.92673 4.89996 8.50673 4.89996Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                                <path d="M11.0334 9.06665H9.26672V12.1H11.7934V9.82666C11.7867 9.40666 11.4467 9.06665 11.0334 9.06665Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                            </svg>
-                                            <span>Assign Teacher</span>
-                                        </Link>
-                                        <Link to="/AssignStudents" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg">
-                                            <svg className="w-5 h-5" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M1.33337 9.05332V10.5C1.33337 13.8333 2.66671 15.1666 6.00004 15.1666H10C13.3334 15.1666 14.6667 13.8333 14.6667 10.5V6.49998C14.6667 3.16665 13.3334 1.83331 10 1.83331H6.00004C2.66671 1.83331 1.33337 3.16665 1.33337 6.49998" stroke="white" stroke-linecap="round" stroke-linejoin="round" />
-                                                <path d="M6.74003 7.93335H4.97337C4.55337 7.93335 4.21338 8.27332 4.21338 8.69332V12.1066H6.74003V7.93335V7.93335Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                                <path d="M8.50673 4.89996H7.49339C7.07339 4.89996 6.7334 5.23997 6.7334 5.65997V12.1H9.26007V5.65997C9.26007 5.23997 8.92673 4.89996 8.50673 4.89996Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                                <path d="M11.0334 9.06665H9.26672V12.1H11.7934V9.82666C11.7867 9.40666 11.4467 9.06665 11.0334 9.06665Z" stroke="white" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
-                                            </svg>
-                                            <span>Assign Student</span>
-                                        </Link>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
+                            <li>
+                                <Link
+                                    to="/Setting"
+                                    className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg"
+                                >
+                                    <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281722/setting-2_nxazfr.svg" alt="settings" className="w-5 h-5" />
+                                    <span>Attendance Setting</span>
+                                </Link>
                             </li>
-                            <Link to="/ListOfParent" className="flex items-center gap-3 px-4 py-3 bg-white/10 rounded-lg">
-                                <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281721/food_cp4exu.svg" alt="settings" className="w-5 h-5" />
-                                <span>Parent List</span>
-                            </Link>
-                            <Link to="/Profile" className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg">
-                                <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281722/setting-2_nxazfr.svg" alt="settings" className="w-5 h-5" />
-                                <span> Setting and profile</span>
-                            </Link>
+
+                            <li>
+                                <Link
+                                    to="/view"
+                                    className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg"
+                                >
+                                    <svg className="w-5 h-5" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1.33337 9.05332V10.5C1.33337 13.8333 2.66671 15.1666 6.00004 15.1666H10C13.3334 15.1666 14.6667 13.8333 14.6667 10.5V6.49998C14.6667 3.16665 13.3334 1.83331 10 1.83331H6.00004C2.66671 1.83331 1.33337 3.16665 1.33337 6.49998" stroke="white" strokeLinecap="round" strokeLinejoin="round" />
+                                        <path d="M6.74003 7.93335H4.97337C4.55337 7.93335 4.21338 8.27332 4.21338 8.69332V12.1066H6.74003V7.93335V7.93335Z" stroke="white" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+                                        <path d="M8.50673 4.89996H7.49339C7.07339 4.89996 6.7334 5.23997 6.7334 5.65997V12.1H9.26007V5.65997C9.26007 5.23997 8.92673 4.89996 8.50673 4.89996Z" stroke="white" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+                                        <path d="M11.0334 9.06665H9.26672V12.1H11.7934V9.82666C11.7867 9.40666 11.4467 9.06665 11.0334 9.06665Z" stroke="white" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                    <span>View Attendance</span>
+                                </Link>
+                            </li>
+
+                            <li>
+                                <Link
+                                    to="/AssignTeacher"
+                                    className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg"
+                                >
+                                    <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281723/teacher_mmxcpi.svg" alt="teachers" className="w-5 h-5" />
+                                    <span>Assign Teacher</span>
+                                </Link>
+                            </li>
+
+                            <li>
+                                <Link
+                                    to="/AssignStudents"
+                                    className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg"
+                                >
+                                    <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281721/Student_hunumx.svg" alt="students" className="w-5 h-5" />
+                                    <span>Assign Student</span>
+                                </Link>
+                            </li>
+
+                            <li>
+                                <Link
+                                    to="/ListOfParent"
+                                    className="flex items-center gap-3 px-4 py-3 bg-white/10 rounded-lg"
+                                >
+                                    <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281721/food_cp4exu.svg" alt="settings" className="w-5 h-5" />
+                                    <span>Parent List</span>
+                                </Link>
+                            </li>
+
+                            <li>
+                                <Link
+                                    to="/Profile"
+                                    className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-lg"
+                                >
+                                    <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281722/setting-2_nxazfr.svg" alt="settings" className="w-5 h-5" />
+                                    <span>Setting and profile</span>
+                                </Link>
+                            </li>
                         </ul>
                     </nav>
                 </div>
@@ -283,30 +280,28 @@ const ListOfParents = () => {
                                 <p className="font-medium">{user?.name || "Loading..."}</p>
                                 <p className="text-sm text-gray-500">Admin</p>
                             </div>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger>
-                                    <img
-                                        src={user?.profile_picture || "https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281722/bell_muudfk.svg"}
-                                        alt="profile"
-                                        className="w-10 h-10 rounded-full"
-                                    />
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent className="allProfile">
-                                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem>
-                                        <Link to="/profile">Profile</Link>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                        <Link to="/login" onClick={() => {
+                            <div className="relative">
+                                <img
+                                    src={user?.profile_picture || "https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281722/bell_muudfk.svg"}
+                                    alt="profile"
+                                    className="w-10 h-10 rounded-full cursor-pointer"
+                                />
+                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden">
+                                    <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        Profile
+                                    </Link>
+                                    <Link
+                                        to="/login"
+                                        onClick={() => {
                                             localStorage.removeItem("token");
                                             localStorage.removeItem("user");
-                                        }}>
-                                            Logout
-                                        </Link>
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                                        }}
+                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    >
+                                        Logout
+                                    </Link>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </header>
@@ -318,13 +313,17 @@ const ListOfParents = () => {
                                 key={parent.id}
                                 className="bg-white shadow-md rounded-lg p-4 flex flex-col items-center space-y-4"
                             >
-                                {/* Profile Picture or Initial */}
+                                {/* Profile Picture */}
                                 <div className="w-20 h-20 rounded-full overflow-hidden border border-gray-300">
-                                    {parent.profile_picture ? (
+                                    {profilePictures[parent.id] ? (
                                         <img
-                                            src={parent.profile_picture}
+                                            src={profilePictures[parent.id]}
                                             alt={parent.name}
                                             className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                                e.target.onerror = null;
+                                                e.target.src = "https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281722/bell_muudfk.svg";
+                                            }}
                                         />
                                     ) : (
                                         <div className="w-full h-full bg-gray-200 flex items-center justify-center text-xl font-semibold text-gray-500">
@@ -337,7 +336,7 @@ const ListOfParents = () => {
                                 <div className="text-center space-y-1">
                                     <h3 className="text-lg font-semibold text-gray-800">{parent.name || 'Unknown Parent'}</h3>
                                     <p className="text-sm text-gray-600"><span className="font-medium">Email:</span> {parent.email || 'N/A'}</p>
-                                    <p className="text-sm text-gray-600"><span className="font-medium">Phone:</span> {parent.phone || 'N/A'}</p>
+                                    <p className="text-sm text-gray-600"><span className="font-medium">Phone:</span> {parent.phone_number || 'N/A'}</p>
                                     <p className="text-sm text-gray-600"><span className="font-medium">Address:</span> {parent.address || 'N/A'}</p>
                                 </div>
                             </div>
@@ -346,7 +345,6 @@ const ListOfParents = () => {
                 </div>
             </div>
         </div>
-
     );
 };
 

@@ -4,7 +4,6 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import Swal from "sweetalert2";
 import { Link, useNavigate } from "react-router-dom";
-import "../assets/style/addteacher.css";
 
 const Mark = () => {
   const navigate = useNavigate();

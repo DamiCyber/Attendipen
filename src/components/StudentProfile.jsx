@@ -16,7 +16,7 @@ const StudentProfile = () => {
     } else {
       console.error('No student ID provided');
       Swal.fire('Error', 'No student ID provided', 'error');
-      navigate('/student');
+  
     }
   }, [studentId]);
 
