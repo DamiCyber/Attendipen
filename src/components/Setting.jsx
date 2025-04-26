@@ -73,7 +73,7 @@ const Setting = () => {
             title: "Attendance settings updated successfully",
             icon: "success",
             confirmButtonText: "OK",
-          }).then(() => navigate("/View"));
+          }).then(() => navigate("/attendance/view"));
         }
       } catch (error) {
         Swal.fire({
