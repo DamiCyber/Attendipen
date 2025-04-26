@@ -145,7 +145,9 @@ const Admission = () => {
     <div className="dashboard-container">
       <div className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
         <div className="sidebar-header">
-          <div className="logo">logo</div>
+          <div className="logo">
+          <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1745508053/1f4177ed-47e3-4a5a-b5f3-0e8adf1595c3-removebg-preview_celvbn.png" alt="" />
+          </div>
           <button className="toggle-btn" onClick={toggleSidebar}>
             {isSidebarOpen ? '←' : '→'}
           </button>
@@ -183,7 +185,7 @@ const Admission = () => {
               {isSidebarOpen && isAttendanceOpen && (
                 <ul className="dropdown-menu">
                   <li>
-                    <Link to="/students/:studentId" className="dropdown-link">
+                    <Link to="/parents/children" className="dropdown-link">
                       <span className="icon">
                         <FontAwesomeIcon icon={faClipboardUser} className="nav-icon" />
                       </span>

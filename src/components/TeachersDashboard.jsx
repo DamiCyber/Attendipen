@@ -95,7 +95,7 @@ const TeachersDashboard = () => {
                 <span className="icon">
                   <FontAwesomeIcon icon={faChalkboard} className="nav-icon" />
                 </span>
-                {isSidebarOpen && <span className="text">Students</span>}
+                {isSidebarOpen && <span className="text">Scan QR Code</span>}
               </Link>
             </li>
             <li className="dropdown-container">
@@ -122,7 +122,7 @@ const TeachersDashboard = () => {
               )}
             </li>
             <li>
-              <Link to="/teacher/profile" className="nav-link">
+              <Link to="/teachers/profile/details" className="nav-link">
                 <span className="icon">
                   <FontAwesomeIcon icon={faUser} className="nav-icon" />
                 </span>
@@ -130,7 +130,7 @@ const TeachersDashboard = () => {
               </Link>
             </li>
             <li>
-              <Link to="/teacher/settings" className="nav-link">
+              <Link to="/teachers/profile/edit" className="nav-link">
                 <span className="icon">
                   <FontAwesomeIcon icon={faGear} className="nav-icon" />
                 </span>

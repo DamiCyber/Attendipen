@@ -5,10 +5,10 @@ import Swal from 'sweetalert2';
 import "../assets/style/dashboard.css";
 import "../assets/style/profiledetails.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faHouse, 
-  faPlus, 
-  faCalendar, 
+import {
+  faHouse,
+  faPlus,
+  faCalendar,
   faGear,
   faClipboardUser,
   faChartColumn
@@ -58,7 +58,7 @@ const ParentProfileDetails = () => {
 
         if (pictureResponse.data) {
           const imageUrl = URL.createObjectURL(pictureResponse.data);
-            setProfilePicture(imageUrl);
+          setProfilePicture(imageUrl);
         }
 
         // Fetch profile details
@@ -142,7 +142,9 @@ const ParentProfileDetails = () => {
     <div className="dashboard-container">
       <div className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
         <div className="sidebar-header">
-          <div className="logo">logo</div>
+          <div className="logo">
+            <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1745508053/1f4177ed-47e3-4a5a-b5f3-0e8adf1595c3-removebg-preview_celvbn.png" alt="" />
+          </div>
           <button className="toggle-btn" onClick={toggleSidebar}>
             {isSidebarOpen ? '←' : '→'}
           </button>
@@ -180,13 +182,13 @@ const ParentProfileDetails = () => {
               {isSidebarOpen && isAttendanceOpen && (
                 <ul className="dropdown-menu">
                   <li>
-                    <Link to="/students/:studentId" className="dropdown-link">
+                    <Link to="/parents/children" className="dropdown-link">
                       <span className="icon">
                         <FontAwesomeIcon icon={faClipboardUser} className="nav-icon" />
                       </span>
                       <span className="text">Attendance</span>
                     </Link>
-                  </li>       
+                  </li>
                 </ul>
               )}
             </li>
@@ -197,7 +199,7 @@ const ParentProfileDetails = () => {
                 </span>
                 {isSidebarOpen && <span className="text">Profile</span>}
               </Link>
-            </li> 
+            </li>
           </ul>
         </nav>
       </div>
@@ -208,28 +210,28 @@ const ParentProfileDetails = () => {
             <h1 className="dashboard-title">Profile Details</h1>
           </div>
           <div className="user">
-                <div className="profile-picture">
-                  {profilePicture ? (
-                    <img
-                      src={profilePicture}
-                      alt="Profile"
+            <div className="profile-picture">
+              {profilePicture ? (
+                <img
+                  src={profilePicture}
+                  alt="Profile"
                   onError={(e) => {
                     console.log('Profile picture load error');
                     e.target.src = null;
                   }}
-                    />
-                  ) : (
+                />
+              ) : (
                 <div className="profile-placeholder">
                   {user?.name?.charAt(0)?.toUpperCase() || '?'}
-                    </div>
-                  )}
                 </div>
+              )}
+            </div>
             <div className="user-info">
               <h4 className="welcome-message">{user?.name || "Loading..."}</h4>
               <h5>Parent</h5>
-              </div>
             </div>
           </div>
+        </div>
 
         <div className="content-body">
           <div className="profile-details-container">
@@ -237,22 +239,22 @@ const ParentProfileDetails = () => {
               <div className="profile-card">
                 <div className="profile-header">
                   <div className="profile-picture-large">
-                {profilePicture ? (
-                  <img
-                    src={profilePicture}
-                    alt="Profile"
+                    {profilePicture ? (
+                      <img
+                        src={profilePicture}
+                        alt="Profile"
                         className="profile-image"
                         onError={(e) => {
                           console.log('Profile picture load error');
                           e.target.src = null;
                         }}
-                  />
-                ) : (
+                      />
+                    ) : (
                       <div className="profile-placeholder-large">
-                      {profile?.name?.charAt(0)?.toUpperCase() || '?'}
+                        {profile?.name?.charAt(0)?.toUpperCase() || '?'}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
                   <div className="profile-actions">
                     <button
                       onClick={() => navigate('/parents/profile/edit')}
@@ -276,22 +278,22 @@ const ParentProfileDetails = () => {
                     <div className="info-group">
                       <h3 className="info-label">Email</h3>
                       <p className="info-value">{profile?.email || 'Not set'}</p>
-              </div>
+                    </div>
 
                     <div className="info-group">
                       <h3 className="info-label">Phone Number</h3>
                       <p className="info-value">{profile?.phone_number || 'Not set'}</p>
-                  </div>
+                    </div>
 
                     <div className="info-group">
                       <h3 className="info-label">Address</h3>
                       <p className="info-value">{profile?.address || 'Not set'}</p>
-                  </div>
+                    </div>
 
                     <div className="info-group">
                       <h3 className="info-label">Role</h3>
                       <p className="info-value">{profile?.role || 'Parent'}</p>
-                  </div>
+                    </div>
 
                     <div className="info-group">
                       <h3 className="info-label">Status</h3>

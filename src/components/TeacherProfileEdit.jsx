@@ -140,7 +140,7 @@ const TeacherProfileEdit = () => {
           icon: 'success',
           confirmButtonColor: '#1a237e'
         }).then(() => {
-          navigate('/parents/profile/details');
+          navigate('/teachers/profile/details');
         });
       }
     } catch (error) {
@@ -262,7 +262,7 @@ const TeacherProfileEdit = () => {
             <div className="form-actions">
               <button
                 type="button"
-                onClick={() => navigate('/parents/profile/details')}
+                onClick={() => navigate('/teachers/profile/details')}
                 className="cancel-button"
               >
                 Cancel

@@ -4,6 +4,22 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import Swal from "sweetalert2";
 import { Link, useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faHouse, 
+  faCalendar, 
+  faChalkboard, 
+  faBook, 
+  faGear,
+  faClipboardUser,
+  faChartColumn,
+  faUser,
+  faSignOutAlt,
+  faBars,
+  faTimes
+} from '@fortawesome/free-solid-svg-icons';
+import "../assets/style/dashboard.css";
+import "../assets/style/mark.css";
 
 const BASE_URL = "https://attendipen-d65abecaffe3.herokuapp.com";
 
@@ -14,14 +30,22 @@ const Mark = () => {
   const [isLoadingClasses, setIsLoadingClasses] = useState(true);
   const [isLoadingStudents, setIsLoadingStudents] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const validationSchema = yup.object({
-    class_id: yup.number().required("Class is required"),
-    student_id: yup.number().required("Student is required"),
-    status: yup.string().oneOf(['present', 'absent'], "Please select a valid status").required("Status is required"),
-  });
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isAttendanceOpen, setIsAttendanceOpen] = useState(false);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
+    // Retrieve the user from localStorage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+      }
+    }
+
     const fetchClasses = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -59,6 +83,21 @@ const Mark = () => {
 
     fetchClasses();
   }, [navigate]);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const toggleAttendance = () => {
+    setIsAttendanceOpen(!isAttendanceOpen);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("profilePicture");
+    navigate("/login");
+  };
 
   const fetchStudents = async (classId) => {
     if (!classId) return;
@@ -98,6 +137,12 @@ const Mark = () => {
       setIsLoadingStudents(false);
     }
   };
+
+  const validationSchema = yup.object({
+    class_id: yup.number().required("Class is required"),
+    student_id: yup.number().required("Student is required"),
+    status: yup.string().oneOf(['present', 'absent'], "Please select a valid status").required("Status is required"),
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -175,126 +220,210 @@ const Mark = () => {
   });
 
   return (
-    <div className="dashboard">
-      <div className="sidebarUp">
+    <div className="dashboard-container">
+      <div className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
+        <div className="sidebar-header">
+          <div className="logo">
+            <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1745508053/1f4177ed-47e3-4a5a-b5f3-0e8adf1595c3-removebg-preview_celvbn.png" alt="" />
+          </div>
+          <button className="toggle-btn" onClick={toggleSidebar}>
+            {isSidebarOpen ? '←' : '→'}
+          </button>
+        </div>
         <nav>
-          <ul>
-            <div>
-              <div className="side-logo">
-                <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1734938938/amend_lntakp.png" alt="Logo" />
-                <h1>Attendipen</h1>
+          <ul className="nav-links">
+            <li>
+              <Link to="/Teachers/Dashboard" className="nav-link">
+                <span className="icon">
+                  <FontAwesomeIcon icon={faHouse} className="nav-icon" />
+                </span>
+                {isSidebarOpen && <span className="text">Dashboard</span>}
+              </Link>
+            </li>
+            <li>
+              <Link to="/school/invitation" className="nav-link">
+                <span className="icon">
+                  <FontAwesomeIcon icon={faChalkboard} className="nav-icon" />
+                </span>
+                {isSidebarOpen && <span className="text">Accept Invite</span>}
+              </Link>
+            </li>
+            <li>
+              <Link to="/teachers/students" className="nav-link">
+                <span className="icon">
+                  <FontAwesomeIcon icon={faChalkboard} className="nav-icon" />
+                </span>
+                {isSidebarOpen && <span className="text">Scan QR Code</span>}
+              </Link>
+            </li>
+            <li className="dropdown-container">
+              <div className="nav-link dropdown-header" onClick={toggleAttendance}>
+                <span className="icon">
+                  <FontAwesomeIcon icon={faCalendar} className="nav-icon" />
+                </span>
+                {isSidebarOpen && (
+                  <>
+                    <span className="text">Attendance</span>
+                    <span className={`dropdown-arrow ${isAttendanceOpen ? 'open' : ''}`}>▼</span>
+                  </>
+                )}
               </div>
-              <div className="border-line"></div>
-              <nav className="naval">
-                <ul>
-                  <div className="board">
-                    <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281723/home-2_wwzqrg.png" alt="Dashboard" />
-                    <Link to="/TeachersDashboard" className="link">Dashboard</Link>
-                  </div>
-                  <div className="board">
-                    <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281723/home-2_wwzqrg.png" alt="Attendance" />
-                    <Link to="/MarkAttendance" className="link">Attendance</Link>
-                  </div>
-                  <div className="board">
-                    <img src="https://res.cloudinary.com/dgxvuw8wd/image/upload/v1736281723/teacher_mmxcpi.svg" alt="Accept" />
-                    <Link to="/accept" className="link">Accept invite</Link>
-                  </div>
+              {isSidebarOpen && isAttendanceOpen && (
+                <ul className="dropdown-menu">
+                  <li>
+                    <Link to="/attendance/mark" className="dropdown-link">
+                      <span className="icon"><FontAwesomeIcon icon={faClipboardUser} className="nav-icon" /></span>
+                      <span className="text">Mark Attendance</span>
+                    </Link>
+                  </li>
                 </ul>
-              </nav>
-            </div>
+              )}
+            </li>
+            <li>
+              <Link to="/teachers/profile/details" className="nav-link">
+                <span className="icon">
+                  <FontAwesomeIcon icon={faUser} className="nav-icon" />
+                </span>
+                {isSidebarOpen && <span className="text">Profile</span>}
+              </Link>
+            </li>
+            <li>
+              <Link to="/teachers/profile/edit" className="nav-link">
+                <span className="icon">
+                  <FontAwesomeIcon icon={faGear} className="nav-icon" />
+                </span>
+                {isSidebarOpen && <span className="text">Settings</span>}
+              </Link>
+            </li>
           </ul>
         </nav>
       </div>
 
-      <div className="main-content">
-        <div className="form-container">
-          <h2>Mark Attendance</h2>
-          {isLoadingClasses ? (
-            <div className="loading">Loading classes...</div>
-          ) : (
-            <form onSubmit={formik.handleSubmit}>
-              <div className="form-group">
-                <label htmlFor="class_id">Select Class</label>
-                <select
-                  id="class_id"
-                  name="class_id"
-                  onChange={(e) => {
-                    formik.handleChange(e);
-                    if (e.target.value) {
-                      fetchStudents(e.target.value);
-                      formik.setFieldValue('student_id', '');
-                      formik.setFieldValue('status', '');
-                    }
+      <div className={`main-content ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+        <div className="header">
+          <div className="header-left">
+            <button className="menu-toggle" onClick={toggleSidebar}>
+              <FontAwesomeIcon icon={isSidebarOpen ? faTimes : faBars} />
+            </button>
+            <h1 className="dashboard-title">Mark Attendance</h1>
+          </div>
+          <div className="user">
+            <div className="profile-picture">
+              {user?.profile_picture ? (
+                <img 
+                  src={user.profile_picture}
+                  alt="Profile" 
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = null;
+                    e.target.parentElement.innerHTML = `<div class="profile-placeholder">${user?.name?.charAt(0)?.toUpperCase() || '?'}</div>`;
                   }}
-                  onBlur={formik.handleBlur}
-                  value={formik.values.class_id}
-                  disabled={isSubmitting}
-                  className={formik.touched.class_id && formik.errors.class_id ? 'error' : ''}
-                >
-                  <option value="">Select a class</option>
-                  {classes.map((cls) => (
-                    <option key={cls.id} value={cls.id}>
-                      {cls.name}
-                    </option>
-                  ))}
-                </select>
-                {formik.touched.class_id && formik.errors.class_id && (
-                  <div className="error-message">{formik.errors.class_id}</div>
-                )}
-              </div>
+                />
+              ) : (
+                <div className="profile-placeholder">
+                  {user?.name?.charAt(0)?.toUpperCase() || '?'}
+                </div>
+              )}
+            </div>
+            <div className="user-info">
+              <h4 className="welcome-message">{user?.name || "Loading..."}</h4>
+              <h5>Teacher</h5>
+            </div>
+            <button className="logout-btn" onClick={handleLogout}>
+              <FontAwesomeIcon icon={faSignOutAlt} />
+            </button>
+          </div>
+        </div>
 
-              <div className="form-group">
-                <label htmlFor="student_id">Select Student</label>
-                <select
-                  id="student_id"
-                  name="student_id"
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  value={formik.values.student_id}
-                  disabled={!formik.values.class_id || isLoadingStudents || isSubmitting}
-                  className={formik.touched.student_id && formik.errors.student_id ? 'error' : ''}
-                >
-                  <option value="">Select a student</option>
-                  {students.map((student) => (
-                    <option key={student.id} value={student.id}>
-                      {student.name}
-                    </option>
-                  ))}
-                </select>
-                {formik.touched.student_id && formik.errors.student_id && (
-                  <div className="error-message">{formik.errors.student_id}</div>
-                )}
-              </div>
+        <div className="content-body">
+          <div className="form-container">
+            {isLoadingClasses ? (
+              <div className="loading">Loading classes...</div>
+            ) : (
+              <form onSubmit={formik.handleSubmit} className='forall'>
+                <div className="form-group">
+                  <label htmlFor="class_id">Select Class</label>
+                  <select
+                    id="class_id"
+                    name="class_id"
+                    onChange={(e) => {
+                      formik.handleChange(e);
+                      if (e.target.value) {
+                        fetchStudents(e.target.value);
+                        formik.setFieldValue('student_id', '');
+                        formik.setFieldValue('status', '');
+                      }
+                    }}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.class_id}
+                    disabled={isSubmitting}
+                    className={formik.touched.class_id && formik.errors.class_id ? 'error' : ''}
+                  >
+                    <option value="">Select a class</option>
+                    {classes.map((cls) => (
+                      <option key={cls.id} value={cls.id}>
+                        {cls.name}
+                      </option>
+                    ))}
+                  </select>
+                  {formik.touched.class_id && formik.errors.class_id && (
+                    <div className="error-message">{formik.errors.class_id}</div>
+                  )}
+                </div>
 
-              <div className="form-group">
-                <label htmlFor="status">Attendance Status</label>
-                <select
-                  id="status"
-                  name="status"
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  value={formik.values.status}
-                  disabled={!formik.values.student_id || isSubmitting}
-                  className={formik.touched.status && formik.errors.status ? 'error' : ''}
-                >
-                  <option value="">Select status</option>
-                  <option value="present">Present</option>
-                  <option value="absent">Absent</option>
-                </select>
-                {formik.touched.status && formik.errors.status && (
-                  <div className="error-message">{formik.errors.status}</div>
-                )}
-              </div>
+                <div className="form-group">
+                  <label htmlFor="student_id">Select Student</label>
+                  <select
+                    id="student_id"
+                    name="student_id"
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.student_id}
+                    disabled={!formik.values.class_id || isLoadingStudents || isSubmitting}
+                    className={formik.touched.student_id && formik.errors.student_id ? 'error' : ''}
+                  >
+                    <option value="">Select a student</option>
+                    {students.map((student) => (
+                      <option key={student.id} value={student.id}>
+                        {student.name}
+                      </option>
+                    ))}
+                  </select>
+                  {formik.touched.student_id && formik.errors.student_id && (
+                    <div className="error-message">{formik.errors.student_id}</div>
+                  )}
+                </div>
 
-              <button 
-                type="submit" 
-                className={`submit-btn ${isSubmitting ? 'submitting' : ''}`}
-                disabled={isSubmitting || !formik.isValid || !formik.dirty}
-              >
-                {isSubmitting ? "Marking..." : "Mark Attendance"}
-              </button>
-            </form>
-          )}
+                <div className="form-group">
+                  <label htmlFor="status">Attendance Status</label>
+                  <select
+                    id="status"
+                    name="status"
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.status}
+                    disabled={!formik.values.student_id || isSubmitting}
+                    className={formik.touched.status && formik.errors.status ? 'error' : ''}
+                  >
+                    <option value="">Select status</option>
+                    <option value="present">Present</option>
+                    <option value="absent">Absent</option>
+                  </select>
+                  {formik.touched.status && formik.errors.status && (
+                    <div className="error-message">{formik.errors.status}</div>
+                  )}
+                </div>
+
+                <button 
+                  type="submit" 
+                  className={`submit-btn ${isSubmitting ? 'submitting' : ''}`}
+                  disabled={isSubmitting || !formik.isValid || !formik.dirty}
+                >
+                  {isSubmitting ? "Marking..." : "Mark Attendance"}
+                </button>
+              </form>
+            )}
+          </div>
         </div>
       </div>
     </div>
